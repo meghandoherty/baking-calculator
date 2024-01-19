@@ -37,10 +37,6 @@ function App() {
       }
 
       const closestMeasurementInfo = findClosestKey(ingredientName);
-      console.log(
-        "🚀 ~ onConvertRecipe ~ closestMeasurementInfo:",
-        closestMeasurementInfo
-      );
       if (!closestMeasurementInfo) {
         conversion += line + "\n";
       } else {
