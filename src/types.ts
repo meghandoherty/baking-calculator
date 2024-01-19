@@ -3,7 +3,7 @@ export type IngredientsAndMeasurements = {
 };
 
 export type Measurement = {
-  [key in MeasurementOptions]?: number;
+  [key in MeasurementOption]?: number;
 };
 
 export const MEASUREMENT_OPTION = [
@@ -18,14 +18,16 @@ export const MEASUREMENT_OPTION = [
   "lb",
   "pound",
   "large", // Used for eggs only
+  "gram",
+  "g",
 ] as const;
 
-export type MeasurementOptions = (typeof MEASUREMENT_OPTION)[number];
+export type MeasurementOption = (typeof MEASUREMENT_OPTION)[number];
 
 export const isMeasurementOption = (
   value: string
-): value is MeasurementOptions => {
-  return MEASUREMENT_OPTION.includes(value as MeasurementOptions);
+): value is MeasurementOption => {
+  return MEASUREMENT_OPTION.includes(value as MeasurementOption);
 };
 
 type ConversionRateKey = "cup" | "tablespoon" | "teaspoon";
@@ -41,4 +43,10 @@ export type ConversionRate = {
   [From in ConversionRateKey]: {
     [To in ConversionRateKey]?: number;
   };
+};
+
+export type IngredientInformation = {
+  ingredientName: string;
+  quantityType: "simple" | "range" | "twoUnitsWithMath";
+  regexMatch: RegExpMatchArray;
 };

@@ -1,86 +1,122 @@
-import Fuse, { FuseResult } from "fuse.js";
-
+import { FuseResult } from "fuse.js";
 import { numericQuantity } from "numeric-quantity";
+import {
+  conversionRates,
+  ingredientAliases,
+  ingredientsFuse,
+} from "./constants";
 import { ingredientsWithMeasurements } from "./ingredients";
 import {
-  ConversionRate,
-  MEASUREMENT_OPTION,
+  EGG_SIZE,
+  MATH_OPERATOR,
+  MATH_QUANTITY_1,
+  MATH_QUANTITY_2,
+  MATH_UNIT_1,
+  MATH_UNIT_2,
+  METRIC_AMOUNT,
+  METRIC_UNIT,
+  RANGE_QUANTITY_1,
+  RANGE_QUANTITY_2,
+  RANGE_UNIT,
+  SIMPLE_QUANTITY,
+  SIMPLE_UNIT,
+  eggRegex,
+  ingredientWithOrOptions,
+  ouncesOrGramsInParenthesesRegex,
+  rangeQuantityAndUnitRegex,
+  simpleQuantityAndUnitRegex,
+  twoQuantitiesAndUnitsWithMathRegex,
+} from "./regex";
+import {
+  IngredientInformation,
   Measurement,
-  MeasurementOptions,
+  MeasurementOption,
   isConversionRateKey,
   isMeasurementOption,
 } from "./types";
 
-// For math, first number is unit from map, second number is unit from recipe
-const conversionRates: ConversionRate = {
-  cup: {
-    tablespoon: 1 / 16,
-    teaspoon: 1 / 48,
-  },
-  tablespoon: {
-    teaspoon: 1 / 3,
-    cup: 16,
-  },
-  teaspoon: {
-    tablespoon: 3,
-    cup: 48,
-  },
-};
-
-// Aliases for ingredients that have slightly different names in the ingredients.json file and confuse Fuse.js
-const ingredientAliases: Record<string, string> = {
-  "powdered sugar": "confectioners sugar",
-  "light brown sugar": "brown sugar",
-  sugar: "sugar (granulated (white)",
-  "salted butter": "butter",
-  "unsalted butter": "butter",
-  milk: "milk (fresh)",
-  "large egg": "Egg (fresh)",
-  "semi-sweet chocolate chips": "chocolate chips",
-  "canola oil": "vegetable oil",
-  "unsweetened cocoa powder": "cocoa powder",
-  "light or dark corn syrup": "corn syrup",
-};
-
-const fuse = new Fuse(Object.keys(ingredientsWithMeasurements), {
-  includeScore: true,
-  ignoreLocation: true,
-});
-
-const numberRegex = /^([\d\s/½¼¾⅓⅔⅕⅖⅗⅘⅙⅔¾⅛⅜⅝⅞\-–]+)/g;
-const unitRegex = new RegExp(`(${MEASUREMENT_OPTION.join("|")})(\\.)?`, "gi");
-
-const numberAndMeasurementRegex = new RegExp(
-  `^([\\d\\s½¼¾⅓⅔⅕⅖⅗⅘⅙⅛⅜⅝⅞/]+([-–]|to)?(${MEASUREMENT_OPTION.join(
-    "|"
-  )})?(\\.)?s?\\s?(plus|minus|\\+)?)+(\\(\\d+\\s(ounces|oz|grams|g)\\))?`,
-  "gi"
-);
-
-const standardizeUnit = (unit: MeasurementOptions): MeasurementOptions => {
+/* Convert unit abbrevitions to their full name */
+const standardizeUnit = (unit: MeasurementOption): MeasurementOption => {
   if (unit === "tbsp") return "tablespoon";
   else if (unit === "tsp") return "teaspoon";
 
   return unit;
 };
 
-/* Given a line from a recipe, separate the number and measurement from the ingredient name */
-export const getNumberMeasurementAndIngredient = (
+/* Given a line from a recipe, identify the kind of quantity and unit it is and separate the ingredient name */
+export const parseRecipeLine = (
   recipeLine: string
-): [string, string] => {
-  const numberAndMeasurement = recipeLine.match(numberAndMeasurementRegex);
-  const numberAndMeasurementPart = numberAndMeasurement
-    ? numberAndMeasurement[0].trim()
-    : "";
+): IngredientInformation | undefined => {
+  // Test out possible options for quantity and unit
+  let result: Partial<IngredientInformation> = {};
 
-  // Remove the measurement part to find the ingredient name
-  const ingredientName = recipeLine
-    .substring(numberAndMeasurementPart.length)
-    .trim();
+  // Math quantity
+  const twoQuantities = recipeLine.match(twoQuantitiesAndUnitsWithMathRegex);
+  if (twoQuantities) {
+    result = {
+      quantityType: "twoUnitsWithMath",
+      regexMatch: twoQuantities,
+    };
+  }
 
-  return [numberAndMeasurementPart, ingredientName];
+  // Range quantity
+  if (!result.quantityType) {
+    const rangeMatch = recipeLine.match(rangeQuantityAndUnitRegex);
+    if (rangeMatch) {
+      result = { quantityType: "range", regexMatch: rangeMatch };
+    }
+  }
+
+  // Simple quantity - keep last
+  if (!result.quantityType) {
+    const simpleMatch = recipeLine.match(simpleQuantityAndUnitRegex);
+    if (simpleMatch) {
+      result = { quantityType: "simple", regexMatch: simpleMatch };
+    }
+  }
+
+  if (result?.regexMatch) {
+    let ingredientName = recipeLine
+      .substring(result.regexMatch[0].length)
+      .trim();
+
+    if (!ingredientName) {
+      console.error(`Unable to parse ${recipeLine} for ingredientName!`);
+      return undefined;
+    }
+
+    // Check for ounce or gram information
+    const ouncesOrGrams = ingredientName.match(ouncesOrGramsInParenthesesRegex);
+
+    if (ouncesOrGrams) {
+      // Just use the metric instead of storing the imperial
+      result.regexMatch = ouncesOrGrams;
+      ingredientName = ingredientName.replace(ouncesOrGrams[0], "").trim();
+    }
+
+    result.ingredientName = ingredientName;
+
+    return result as IngredientInformation;
+  }
+
+  // Special case for eggs
+  const eggMatch = recipeLine.match(eggRegex);
+  if (eggMatch) {
+    // Add large as default size
+    eggMatch[EGG_SIZE] = eggMatch[EGG_SIZE] || "large";
+
+    return {
+      ingredientName: eggMatch[3],
+      quantityType: "simple",
+      regexMatch: eggMatch,
+    };
+  }
+
+  console.error(`Unable to parse ${recipeLine} for quantity!`);
+  return undefined;
 };
 
+/* Given an ingredient name, find the closest match in the ingredients map */
 export const findClosestKeySingle = (
   ingredientName: string
 ): FuseResult<string> | undefined => {
@@ -89,7 +125,7 @@ export const findClosestKeySingle = (
       ? ingredientAliases[ingredientName]
       : ingredientName;
 
-  const closestIngredient = fuse.search(searchTerm);
+  const closestIngredient = ingredientsFuse.search(searchTerm);
   if (
     closestIngredient.length > 0 &&
     closestIngredient[0].score !== undefined &&
@@ -102,7 +138,7 @@ export const findClosestKeySingle = (
   }
 };
 
-/* Given an ingredient name, find the closest match in the ingredients map */
+/* Given an ingredient name, find the closest match in the ingredients map. This could include an or */
 export const findClosestKey = (
   ingredientName: string
 ): Measurement | undefined => {
@@ -114,8 +150,17 @@ export const findClosestKey = (
   const ingredientNameWithoutComma = ingredientWithoutParentheses.split(",")[0];
 
   // Are the ingredients or-ed? If so, compare
-  const orIngredients = ingredientWithoutParentheses.match(/(.*)\sor\s(.*)/i);
-  if (orIngredients) {
+  const orIngredients = ingredientWithoutParentheses.match(
+    ingredientWithOrOptions
+  );
+
+  if (!orIngredients) {
+    // Only 1 ingredient listed
+    const closestKey = findClosestKeySingle(ingredientNameWithoutComma);
+    return closestKey
+      ? ingredientsWithMeasurements[closestKey.item]
+      : undefined;
+  } else {
     // Figure out closest key for both
     const closestKey1 = findClosestKeySingle(orIngredients[1]);
     const closestKey2 = findClosestKeySingle(orIngredients[2]);
@@ -141,40 +186,20 @@ export const findClosestKey = (
       // Neither had a match
       return undefined;
     }
-  } else {
-    const closestKey = findClosestKeySingle(ingredientNameWithoutComma);
-    return closestKey
-      ? ingredientsWithMeasurements[closestKey.item]
-      : undefined;
   }
 };
 
+/* Given something we know is a single measurement, convert it to grams */
 export const getGramsForSingleMeasurement = (
-  ingredientName: string,
-  numberAndMeasurement: string,
-  measurements: Measurement,
-  amount: string
+  amount: string,
+  unit: string,
+  measurements: Measurement
 ): number | undefined => {
   // Convert the string amount to a number
   const amountAsNumber = numericQuantity(amount);
 
-  // Get the unit
-  const unit = numberAndMeasurement.match(unitRegex);
-  let unitPart = unit ? unit[0].trim() : "";
-
-  // The input does not have a unit?
-  if (!unitPart) {
-    // Handle weird egg case - assume large
-    if (ingredientName.toLowerCase().includes("egg")) {
-      unitPart = "large";
-    } else {
-      console.error(`Couldn't find unit in ${numberAndMeasurement}`);
-      return undefined;
-    }
-  }
-
-  if (isMeasurementOption(unitPart)) {
-    const standardizedUnit = standardizeUnit(unitPart);
+  if (isMeasurementOption(unit)) {
+    const standardizedUnit = standardizeUnit(unit);
     // Unit matches what we have in measurement
     if (measurements[standardizedUnit] !== undefined) {
       return +(amountAsNumber * measurements[standardizedUnit]!).toFixed(2);
@@ -193,145 +218,100 @@ export const getGramsForSingleMeasurement = (
     }
   }
 
-  // Something went wrong, return the initial input
+  // Something went wrong, return undefined
   return undefined;
-};
-
-/* Get numbers from a measurement. This could be a range like 10 - 12 */
-const getQuantityFrmoMeasurement = (
-  numberAndMeasurement: string
-): string | undefined => {
-  const amount = numberAndMeasurement.match(numberRegex);
-
-  if (!amount) {
-    console.error(`Couldn't find amount in ${numberAndMeasurement}`);
-    return undefined;
-  }
-
-  return amount[0].trim();
 };
 
 /* Given an ingredient name and measurement, convert it to the number of grams */
 export const getGramsForCompleteMeasurement = (
-  ingredientName: string,
-  numberAndMeasurement: string,
-  measurements: Measurement
+  ingredientInfo: IngredientInformation,
+  measurementInfo: Measurement
 ): string => {
-  // Do we need to add or subtract anything?
-  const plusOrMinus = numberAndMeasurement.match(/(.*)\s(plus|minus|\+)(.*)/i);
-  if (plusOrMinus) {
-    const quantity1 = getQuantityFrmoMeasurement(plusOrMinus[1]);
-    const quantity2 = getQuantityFrmoMeasurement(plusOrMinus[3]);
-    if (!quantity1 || !quantity2) {
-      console.error(
-        `Couldn't find amount in ${numberAndMeasurement} to add or subtract`
-      );
-      return "";
-    }
+  // Handle measurement that needs math
+  if (ingredientInfo.quantityType === "twoUnitsWithMath") {
     const grams1 = getGramsForSingleMeasurement(
-      ingredientName,
-      plusOrMinus[1].trim(),
-      measurements,
-      quantity1
+      ingredientInfo.regexMatch[MATH_QUANTITY_1],
+      ingredientInfo.regexMatch[MATH_UNIT_1],
+      measurementInfo
     );
     const grams2 = getGramsForSingleMeasurement(
-      ingredientName,
-      plusOrMinus[3].trim(),
-      measurements,
-      quantity2
+      ingredientInfo.regexMatch[MATH_QUANTITY_2],
+      ingredientInfo.regexMatch[MATH_UNIT_2],
+      measurementInfo
     );
-    console.log(numberAndMeasurement, grams1, grams2);
 
     if (!grams1 || !grams2) {
       console.error(
-        `Couldn't find grams for ${numberAndMeasurement} to add or subtract`
+        `Couldn't find grams for ${ingredientInfo} to add or subtract`
       );
-      return numberAndMeasurement;
+      return ingredientInfo.regexMatch[0];
     }
 
-    if (plusOrMinus[2] === "plus" || plusOrMinus[2] === "+") {
+    if (
+      ingredientInfo.regexMatch[MATH_OPERATOR] === "plus" ||
+      ingredientInfo.regexMatch[MATH_OPERATOR] === "+"
+    ) {
       return `${grams1 + grams2} g`;
     } else {
       return `${grams1 - grams2} g`;
     }
   }
 
-  // Get the amount
-  const quantity = getQuantityFrmoMeasurement(numberAndMeasurement);
-  if (!quantity) return numberAndMeasurement;
-
-  // Is the amount a range?
-  const possibleRange = quantity.split(/[-–+]/g);
-
-  if (possibleRange.length === 1) {
-    const gramsAmount = getGramsForSingleMeasurement(
-      ingredientName,
-      numberAndMeasurement,
-      measurements,
-      quantity
+  // Handle range measurement
+  if (ingredientInfo.quantityType === "range") {
+    const grams1 = getGramsForSingleMeasurement(
+      ingredientInfo.regexMatch[RANGE_QUANTITY_1],
+      ingredientInfo.regexMatch[RANGE_UNIT],
+      measurementInfo
+    );
+    const grams2 = getGramsForSingleMeasurement(
+      ingredientInfo.regexMatch[RANGE_QUANTITY_2],
+      ingredientInfo.regexMatch[RANGE_UNIT],
+      measurementInfo
     );
 
-    if (!gramsAmount) return numberAndMeasurement;
-    else return `${gramsAmount} g`;
-  } else if (possibleRange.length === 2) {
-    return `${possibleRange
-      .map((x) =>
-        getGramsForSingleMeasurement(
-          ingredientName,
-          numberAndMeasurement,
-          measurements,
-          x.trim()
-        )
-      )
-      .join(" - ")} g`;
-  } else {
-    console.error(
-      `Had a range of 3 or more in ${numberAndMeasurement}, not sure how to handle`
-    );
+    if (!grams1 || !grams2) {
+      console.error(`Couldn't find grams for ${ingredientInfo} for range`);
+      return ingredientInfo.regexMatch[0];
+    }
+
+    return `${grams1} - ${grams2} g`;
   }
 
-  return numberAndMeasurement;
+  if (ingredientInfo.quantityType === "simple") {
+    return `${getGramsForSingleMeasurement(
+      ingredientInfo.regexMatch[SIMPLE_QUANTITY],
+      ingredientInfo.regexMatch[SIMPLE_UNIT],
+      measurementInfo
+    )} g`;
+  }
+
+  // backup - return the original measurement
+  return ingredientInfo.regexMatch[0];
 };
 
 const convertOuncesToGrams = (ounces: number): number =>
   +(ounces * 28.349523125).toFixed(2);
 
 /* Given a measurement in ounces, convert it into grams with some easy multiplication */
-export const getGramsFromOuncesOrGrams = (
-  numberAndMeasurement: string
+export const getGramsFromMetricMeasurement = (
+  metricMeasurement: RegExpMatchArray
 ): string => {
-  // Is the info in parentheses?
-  const inParentheses = numberAndMeasurement.match(
-    /\((\d+)\s(ounces|oz|grams|g)\)/
-  );
-  if (inParentheses) {
-    if (inParentheses[2] === "oz" || inParentheses[2] === "ounces") {
-      return `${convertOuncesToGrams(numericQuantity(inParentheses[1]))} g`;
-    } else {
-      return `${numericQuantity(inParentheses[1])} g`;
-    }
-  }
-
-  // Get the amount
-  const quantity = getQuantityFrmoMeasurement(numberAndMeasurement);
-  if (!quantity) return numberAndMeasurement;
-
+  const isOunces =
+    metricMeasurement[METRIC_UNIT].toLowerCase() === "oz" ||
+    metricMeasurement[METRIC_UNIT].toLowerCase() === "ounce";
   // Is the amount a range?
-  const possibleRange = quantity.split(/[-–+]/g);
+  const possibleRange = metricMeasurement[METRIC_AMOUNT].split(/[-–+]/g);
 
   if (possibleRange.length === 1) {
-    return `${convertOuncesToGrams(
-      numericQuantity(possibleRange[0].trim())
-    )} g`;
-  } else if (possibleRange.length === 2) {
-    return `${possibleRange
-      .map((x) => convertOuncesToGrams(numericQuantity(x.trim())))
-      .join(" g - ")} g`;
-  } else {
-    console.error(
-      `Had a range of 3 or more in ${numberAndMeasurement}, not sure how to handle`
-    );
+    return isOunces
+      ? `${convertOuncesToGrams(numericQuantity(possibleRange[0].trim()))} g`
+      : `${numericQuantity(possibleRange[0])} g`;
   }
 
-  return numberAndMeasurement;
+  return isOunces
+    ? `${possibleRange
+        .map((x) => convertOuncesToGrams(numericQuantity(x.trim())))
+        .join(" g - ")} g`
+    : `${possibleRange.map((x) => numericQuantity(x.trim())).join(" g - ")} g`;
 };

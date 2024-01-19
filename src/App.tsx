@@ -4,8 +4,8 @@ import "./App.css";
 import {
   findClosestKey,
   getGramsForCompleteMeasurement,
-  getGramsFromOuncesOrGrams,
-  getNumberMeasurementAndIngredient,
+  getGramsFromMetricMeasurement,
+  parseRecipeLine,
 } from "./utils";
 
 function App() {
@@ -21,31 +21,38 @@ function App() {
     for (const line of recipe.split("\n")) {
       if (line.length === 0) continue;
 
-      const [numberAndMeasurementPart, ingredientName] =
-        getNumberMeasurementAndIngredient(line);
+      const ingredientInfo = parseRecipeLine(line);
 
-      // If using ounces just convert quickly
-      if (
-        numberAndMeasurementPart.includes("oz") ||
-        numberAndMeasurementPart.includes("ounce") ||
-        numberAndMeasurementPart.includes("gram") ||
-        numberAndMeasurementPart.includes(" g")
-      ) {
-        conversion += `${getGramsFromOuncesOrGrams(
-          numberAndMeasurementPart
-        )} ${ingredientName}\n`;
+      console.log(ingredientInfo);
+
+      if (!ingredientInfo) {
+        conversion += line + "\n";
         continue;
       }
 
-      const closestMeasurementInfo = findClosestKey(ingredientName);
+      // If given ounces or grams, just convert quickly
+      if (
+        ingredientInfo.regexMatch.includes("oz") ||
+        ingredientInfo.regexMatch.includes("ounce") ||
+        ingredientInfo.regexMatch.includes("gram") ||
+        ingredientInfo.regexMatch.includes("g")
+      ) {
+        conversion += `${getGramsFromMetricMeasurement(
+          ingredientInfo.regexMatch
+        )} ${ingredientInfo.ingredientName}\n`;
+        continue;
+      }
+
+      const closestMeasurementInfo = findClosestKey(
+        ingredientInfo.ingredientName
+      );
       if (!closestMeasurementInfo) {
         conversion += line + "\n";
       } else {
         conversion += `${getGramsForCompleteMeasurement(
-          ingredientName,
-          numberAndMeasurementPart,
+          ingredientInfo,
           closestMeasurementInfo
-        )} ${ingredientName}\n`;
+        )} ${ingredientInfo.ingredientName}\n`;
       }
     }
 
