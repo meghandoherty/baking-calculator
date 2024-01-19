@@ -125,15 +125,19 @@ export const findClosestKeySingle = (
       ? ingredientAliases[ingredientName]
       : ingredientName;
 
-  const closestIngredient = ingredientsFuse.search(searchTerm);
+  const potentialMatches = ingredientsFuse.search(searchTerm);
   if (
-    closestIngredient.length > 0 &&
-    closestIngredient[0].score !== undefined &&
-    closestIngredient[0].score < 0.6
+    potentialMatches.length > 0 &&
+    potentialMatches[0].score !== undefined &&
+    potentialMatches[0].score < 0.6
   ) {
-    return closestIngredient[0];
+    console.info(
+      `Match for ${searchTerm}: ${potentialMatches[0].item}`,
+      potentialMatches
+    );
+    return potentialMatches[0];
   } else {
-    console.error(`No match found for '${searchTerm}!'`, closestIngredient);
+    console.error(`No match found for '${searchTerm}!'`, potentialMatches);
     return undefined;
   }
 };

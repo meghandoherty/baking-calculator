@@ -1,7 +1,7 @@
 import { MEASUREMENT_OPTION } from "./types";
 
 // example: 1, 10, 1 1/2, 1 / 2, ⅕
-export const numberRegex = /([\d½¼¾⅓⅔⅕⅖⅗⅘⅙⅔¾⅛⅜⅝⅞/\s]+)/;
+export const numberRegex = /([\d½¼¾⅓⅔⅕⅖⅗⅘⅙⅔¾⅛⅜⅝⅞/\s.]+)/;
 
 // example: 1-2, 1 – 2, 1 to 2
 export const numberRangeRegex = new RegExp(
