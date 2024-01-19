@@ -3,8 +3,8 @@ import { useState } from "react";
 import "./App.css";
 import {
   findClosestKey,
-  getGramsForMeasurement,
-  getGramsFromOunces,
+  getGramsForCompleteMeasurement,
+  getGramsFromOuncesOrGrams,
   getNumberMeasurementAndIngredient,
 } from "./utils";
 
@@ -23,14 +23,15 @@ function App() {
 
       const [numberAndMeasurementPart, ingredientName] =
         getNumberMeasurementAndIngredient(line);
-      console.log(numberAndMeasurementPart, "**", ingredientName);
 
       // If using ounces just convert quickly
       if (
         numberAndMeasurementPart.includes("oz") ||
-        numberAndMeasurementPart.includes("ounce")
+        numberAndMeasurementPart.includes("ounce") ||
+        numberAndMeasurementPart.includes("gram") ||
+        numberAndMeasurementPart.includes(" g")
       ) {
-        conversion += `${getGramsFromOunces(
+        conversion += `${getGramsFromOuncesOrGrams(
           numberAndMeasurementPart
         )} ${ingredientName}\n`;
         continue;
@@ -40,7 +41,7 @@ function App() {
       if (!closestMeasurementInfo) {
         conversion += line + "\n";
       } else {
-        conversion += `${getGramsForMeasurement(
+        conversion += `${getGramsForCompleteMeasurement(
           ingredientName,
           numberAndMeasurementPart,
           closestMeasurementInfo

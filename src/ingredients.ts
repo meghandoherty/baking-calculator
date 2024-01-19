@@ -124,6 +124,8 @@ export const ingredientsWithMeasurements: IngredientsAndMeasurements = {
   "Cranberries (dried)": { cup: 114 },
   "Cranberries (fresh or frozen)": { cup: 99 },
   "Cream (heavy cream, light cream, or half & half)": { cup: 227 },
+  "Heavy Cream": { cup: 227 },
+  "Half & Half": { cup: 227 },
   "Cream cheese": { cup: 227 },
   "Cream of coconut": { cup: 284 },
   "Creme fraiche": { cup: 248 },
