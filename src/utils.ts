@@ -6,6 +6,7 @@ import {
   ConversionRate,
   MEASUREMENT_OPTION,
   Measurement,
+  MeasurementOptions,
   isConversionRateKey,
   isMeasurementOption,
 } from "./types";
@@ -27,7 +28,7 @@ const conversionRates: ConversionRate = {
 };
 
 // Aliases for ingredients that have slightly different names in the ingredients.json file and confuse Fuse.js
-const aliases: Record<string, string> = {
+const ingredientAliases: Record<string, string> = {
   "powdered sugar": "confectioners sugar",
   "light brown sugar": "brown sugar",
   sugar: "sugar (granulated (white)",
@@ -52,9 +53,16 @@ const unitRegex = new RegExp(`(${MEASUREMENT_OPTION.join("|")})(\\.)?`, "gi");
 const numberAndMeasurementRegex = new RegExp(
   `^([\\d\\s½¼¾⅓⅔⅕⅖⅗⅘⅙⅛⅜⅝⅞/]+([-–]|to)?(?:${MEASUREMENT_OPTION.join(
     "|"
-  )})?(\\.)?s?\\s+(plus|minus)?)+`,
+  )})?(\\.)?s?\\s+(plus|minus|\\+)?)+`,
   "gi"
 );
+
+const standardizeUnit = (unit: MeasurementOptions): MeasurementOptions => {
+  if (unit === "tbsp") return "tablespoon";
+  else if (unit === "tsp") return "teaspoon";
+
+  return unit;
+};
 
 /* Given a line from a recipe, separate the number and measurement from the ingredient name */
 export const getNumberMeasurementAndIngredient = (
@@ -80,8 +88,8 @@ export const findClosestKey = (
   // Remove anything after comma, that's usually about temperature or other info
   const ingredientNameWithoutComma = ingredientName.split(",")[0];
   const searchTerm =
-    ingredientNameWithoutComma in aliases
-      ? aliases[ingredientNameWithoutComma]
+    ingredientNameWithoutComma in ingredientAliases
+      ? ingredientAliases[ingredientNameWithoutComma]
       : ingredientNameWithoutComma;
 
   const closestIngredient = fuse.search(searchTerm);
@@ -120,17 +128,18 @@ export const getGramsForSingleMeasurement = (
   }
 
   if (isMeasurementOption(unitPart)) {
+    const standardizedUnit = standardizeUnit(unitPart);
     // Unit matches what we have in measurement
-    if (measurements[unitPart] !== undefined) {
-      return amountAsNumber * measurements[unitPart]!;
+    if (measurements[standardizedUnit] !== undefined) {
+      return amountAsNumber * measurements[standardizedUnit]!;
       // See if we can convert the unit - only for cups, tablespoons, and teaspoons
-    } else if (isConversionRateKey(unitPart)) {
+    } else if (isConversionRateKey(standardizedUnit)) {
       for (const measurementOption in measurements) {
         if (isConversionRateKey(measurementOption)) {
           let result =
             amountAsNumber *
             measurements[measurementOption]! *
-            conversionRates[measurementOption][unitPart]!;
+            conversionRates[measurementOption][standardizedUnit]!;
           result = +result.toFixed(2);
           return result;
         }
@@ -163,7 +172,7 @@ export const getGramsForMeasurement = (
   measurements: Measurement
 ): string => {
   // Do we need to add or subtract anything?
-  const plusOrMinus = numberAndMeasurement.match(/(.*)\s(plus|minus)(.*)/i);
+  const plusOrMinus = numberAndMeasurement.match(/(.*)\s(plus|minus|\+)(.*)/i);
   if (plusOrMinus) {
     const quantity1 = getQuantityFrmoMeasurement(plusOrMinus[1]);
     const quantity2 = getQuantityFrmoMeasurement(plusOrMinus[3]);
@@ -191,10 +200,10 @@ export const getGramsForMeasurement = (
       console.error(
         `Couldn't find grams for ${numberAndMeasurement} to add or subtract`
       );
-      return "";
+      return numberAndMeasurement;
     }
 
-    if (plusOrMinus[2] === "plus") {
+    if (plusOrMinus[2] === "plus" || plusOrMinus[2] === "+") {
       return `${grams1 + grams2} g`;
     } else {
       return `${grams1 - grams2} g`;
@@ -203,7 +212,7 @@ export const getGramsForMeasurement = (
 
   // Get the amount
   const quantity = getQuantityFrmoMeasurement(numberAndMeasurement);
-  if (!quantity) return "";
+  if (!quantity) return numberAndMeasurement;
 
   // Is the amount a range?
   const possibleRange = quantity.split(/[-–+]/g);
@@ -232,7 +241,7 @@ export const getGramsForMeasurement = (
     );
   }
 
-  return "";
+  return numberAndMeasurement;
 };
 
 /* Given a measurement in ounces, convert it into grams with some easy multiplication */
