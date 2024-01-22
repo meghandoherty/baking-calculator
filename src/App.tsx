@@ -23,20 +23,13 @@ function App() {
 
       const ingredientInfo = parseRecipeLine(line);
 
-      console.log(ingredientInfo);
-
       if (!ingredientInfo) {
         conversion += line + "\n";
         continue;
       }
 
       // If given ounces or grams, just convert quickly
-      if (
-        ingredientInfo.regexMatch.includes("oz") ||
-        ingredientInfo.regexMatch.includes("ounce") ||
-        ingredientInfo.regexMatch.includes("gram") ||
-        ingredientInfo.regexMatch.includes("g")
-      ) {
+      if (ingredientInfo.isMetric) {
         conversion += `${getGramsFromMetricMeasurement(
           ingredientInfo.regexMatch
         )} ${ingredientInfo.ingredientName}\n`;
@@ -72,7 +65,11 @@ function App() {
           size="lg"
           height={300}
         />
-        <Button onClick={onConvertRecipe} width="19rem">
+        <Button
+          onClick={onConvertRecipe}
+          width="19rem"
+          isDisabled={recipe.length === 0}
+        >
           Convert Recipe
         </Button>
         <Textarea isDisabled size="lg" height={300} value={convertedRecipe} />

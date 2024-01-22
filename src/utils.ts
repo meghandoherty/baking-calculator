@@ -20,12 +20,12 @@ import {
   RANGE_UNIT,
   SIMPLE_QUANTITY,
   SIMPLE_UNIT,
-  eggRegex,
+  eggLineRegex,
   ingredientWithOrOptions,
   ouncesOrGramsInParenthesesRegex,
-  rangeQuantityAndUnitRegex,
-  simpleQuantityAndUnitRegex,
-  twoQuantitiesAndUnitsWithMathRegex,
+  rangeQuantityAndUnitLineRegex,
+  simpleQuantityAndUnitLineRegex,
+  twoQuantitiesAndUnitsWithMathLineRegex,
 } from "./regex";
 import {
   IngredientInformation,
@@ -33,6 +33,7 @@ import {
   MeasurementOption,
   isConversionRateKey,
   isMeasurementOption,
+  isMetricUnit,
 } from "./types";
 
 /* Convert unit abbrevitions to their full name */
@@ -49,34 +50,48 @@ export const parseRecipeLine = (
 ): IngredientInformation | undefined => {
   // Test out possible options for quantity and unit
   let result: Partial<IngredientInformation> = {};
+  const trimmedRecipeLine = recipeLine.replace(/optional:?/i, "").trim();
 
   // Math quantity
-  const twoQuantities = recipeLine.match(twoQuantitiesAndUnitsWithMathRegex);
+  const twoQuantities = trimmedRecipeLine.match(
+    twoQuantitiesAndUnitsWithMathLineRegex
+  );
   if (twoQuantities) {
     result = {
       quantityType: "twoUnitsWithMath",
       regexMatch: twoQuantities,
+      isMetric:
+        isMetricUnit(twoQuantities[MATH_UNIT_1]) &&
+        isMetricUnit(twoQuantities[MATH_UNIT_2]),
     };
   }
 
   // Range quantity
   if (!result.quantityType) {
-    const rangeMatch = recipeLine.match(rangeQuantityAndUnitRegex);
+    const rangeMatch = trimmedRecipeLine.match(rangeQuantityAndUnitLineRegex);
     if (rangeMatch) {
-      result = { quantityType: "range", regexMatch: rangeMatch };
+      result = {
+        quantityType: "range",
+        regexMatch: rangeMatch,
+        isMetric: isMetricUnit(rangeMatch[RANGE_UNIT]),
+      };
     }
   }
 
-  // Simple quantity - keep last
+  // Simple quantity
   if (!result.quantityType) {
-    const simpleMatch = recipeLine.match(simpleQuantityAndUnitRegex);
+    const simpleMatch = trimmedRecipeLine.match(simpleQuantityAndUnitLineRegex);
     if (simpleMatch) {
-      result = { quantityType: "simple", regexMatch: simpleMatch };
+      result = {
+        quantityType: "simple",
+        regexMatch: simpleMatch,
+        isMetric: isMetricUnit(simpleMatch[SIMPLE_UNIT]),
+      };
     }
   }
 
   if (result?.regexMatch) {
-    let ingredientName = recipeLine
+    let ingredientName = trimmedRecipeLine
       .substring(result.regexMatch[0].length)
       .trim();
 
@@ -90,7 +105,11 @@ export const parseRecipeLine = (
 
     if (ouncesOrGrams) {
       // Just use the metric instead of storing the imperial
-      result.regexMatch = ouncesOrGrams;
+      result = {
+        ...result,
+        regexMatch: ouncesOrGrams,
+        isMetric: true,
+      };
       ingredientName = ingredientName.replace(ouncesOrGrams[0], "").trim();
     }
 
@@ -100,7 +119,7 @@ export const parseRecipeLine = (
   }
 
   // Special case for eggs
-  const eggMatch = recipeLine.match(eggRegex);
+  const eggMatch = trimmedRecipeLine.match(eggLineRegex);
   if (eggMatch) {
     // Add large as default size
     eggMatch[EGG_SIZE] = eggMatch[EGG_SIZE] || "large";
@@ -112,7 +131,7 @@ export const parseRecipeLine = (
     };
   }
 
-  console.error(`Unable to parse ${recipeLine} for quantity!`);
+  console.error(`Unable to parse ${trimmedRecipeLine} for quantity!`);
   return undefined;
 };
 
@@ -120,9 +139,10 @@ export const parseRecipeLine = (
 export const findClosestKeySingle = (
   ingredientName: string
 ): FuseResult<string> | undefined => {
+  const lowerCaseIngredientName = ingredientName.toLowerCase();
   const searchTerm =
-    ingredientName in ingredientAliases
-      ? ingredientAliases[ingredientName]
+    lowerCaseIngredientName in ingredientAliases
+      ? ingredientAliases[lowerCaseIngredientName]
       : ingredientName;
 
   const potentialMatches = ingredientsFuse.search(searchTerm);
@@ -200,10 +220,12 @@ export const getGramsForSingleMeasurement = (
   measurements: Measurement
 ): number | undefined => {
   // Convert the string amount to a number
-  const amountAsNumber = numericQuantity(amount);
+  // Fix any numbers that include "and" - e.g. "1 and 1/2" becomes "1 1/2"
+  const amountAsNumber = numericQuantity(amount.replace(" and", ""));
 
-  if (isMeasurementOption(unit)) {
-    const standardizedUnit = standardizeUnit(unit);
+  const lowerCaseUnit = unit.toLowerCase();
+  if (isMeasurementOption(lowerCaseUnit)) {
+    const standardizedUnit = standardizeUnit(lowerCaseUnit);
     // Unit matches what we have in measurement
     if (measurements[standardizedUnit] !== undefined) {
       return +(amountAsNumber * measurements[standardizedUnit]!).toFixed(2);
@@ -283,11 +305,18 @@ export const getGramsForCompleteMeasurement = (
   }
 
   if (ingredientInfo.quantityType === "simple") {
-    return `${getGramsForSingleMeasurement(
+    const result = getGramsForSingleMeasurement(
       ingredientInfo.regexMatch[SIMPLE_QUANTITY],
       ingredientInfo.regexMatch[SIMPLE_UNIT],
       measurementInfo
-    )} g`;
+    );
+
+    if (!result) {
+      console.error(`Couldn't find grams for ${ingredientInfo}`);
+      return ingredientInfo.regexMatch[0];
+    }
+
+    return `${result} g`;
   }
 
   // backup - return the original measurement
@@ -310,12 +339,16 @@ export const getGramsFromMetricMeasurement = (
   if (possibleRange.length === 1) {
     return isOunces
       ? `${convertOuncesToGrams(numericQuantity(possibleRange[0].trim()))} g`
-      : `${numericQuantity(possibleRange[0])} g`;
+      : `${numericQuantity(possibleRange[0])} ${
+          metricMeasurement[METRIC_UNIT]
+        }`;
   }
 
   return isOunces
     ? `${possibleRange
         .map((x) => convertOuncesToGrams(numericQuantity(x.trim())))
         .join(" g - ")} g`
-    : `${possibleRange.map((x) => numericQuantity(x.trim())).join(" g - ")} g`;
+    : `${possibleRange.map((x) => numericQuantity(x.trim())).join(" - ")} ${
+        metricMeasurement[METRIC_UNIT]
+      }`;
 };

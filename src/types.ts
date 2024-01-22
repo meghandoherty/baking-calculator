@@ -20,6 +20,8 @@ export const MEASUREMENT_OPTION = [
   "large", // Used for eggs only
   "gram",
   "g",
+  "ml",
+  "milliliter",
 ] as const;
 
 export type MeasurementOption = (typeof MEASUREMENT_OPTION)[number];
@@ -38,6 +40,14 @@ export const isConversionRateKey = (
   return value === "cup" || value === "tablespoon" || value === "teaspoon";
 };
 
+export const isMetricUnit = (value: string): boolean =>
+  value === "gram" ||
+  value === "g" ||
+  value === "ounce" ||
+  value === "oz" ||
+  value === "ml" ||
+  value === "milliliter";
+
 // TOOD: improve type?
 export type ConversionRate = {
   [From in ConversionRateKey]: {
@@ -49,4 +59,5 @@ export type IngredientInformation = {
   ingredientName: string;
   quantityType: "simple" | "range" | "twoUnitsWithMath";
   regexMatch: RegExpMatchArray;
+  isMetric?: boolean;
 };
