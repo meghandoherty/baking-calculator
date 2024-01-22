@@ -1,6 +1,10 @@
-import { Button, Heading, Textarea } from "@chakra-ui/react";
+import { Button, Heading } from "@chakra-ui/react";
 import { useState } from "react";
 import "./App.css";
+import RecipeTable from "./components/RecipeTable";
+import RecipeTextArea from "./components/RecipeTextArea";
+import { ingredientsWithMeasurements } from "./ingredients";
+import { IngredientConversionInformation } from "./types";
 import {
   findClosestKey,
   getGramsForCompleteMeasurement,
@@ -10,46 +14,64 @@ import {
 
 function App() {
   const [recipe, setRecipe] = useState("");
-  const [convertedRecipe, setConvertedRecipe] = useState("");
+  const [convertedRecipe, setConvertedRecipe] = useState<
+    IngredientConversionInformation[]
+  >([]);
 
   const onInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setRecipe(e.target.value);
   };
 
   const onConvertRecipe = () => {
-    let conversion = "";
+    const newConversion: IngredientConversionInformation[] = [];
     for (const line of recipe.split("\n")) {
       if (line.length === 0) continue;
 
       const ingredientInfo = parseRecipeLine(line);
 
       if (!ingredientInfo) {
-        conversion += line + "\n";
+        newConversion.push({
+          originalLine: line,
+          newLine: line,
+        });
         continue;
       }
 
       // If given ounces or grams, just convert quickly
       if (ingredientInfo.isMetric) {
-        conversion += `${getGramsFromMetricMeasurement(
-          ingredientInfo.regexMatch
-        )} ${ingredientInfo.ingredientName}\n`;
+        newConversion.push({
+          originalLine: line,
+          parsedLine: ingredientInfo,
+          newLine: `${getGramsFromMetricMeasurement(
+            ingredientInfo.regexMatch
+          )}) ${ingredientInfo.ingredientName}`,
+        });
         continue;
       }
 
-      const closestMeasurementInfo = findClosestKey(
+      const closestMeasurementKey = findClosestKey(
         ingredientInfo.ingredientName
       );
-      if (!closestMeasurementInfo) {
-        conversion += line + "\n";
+      if (!closestMeasurementKey) {
+        newConversion.push({
+          originalLine: line,
+          newLine: line,
+        });
+        continue;
       } else {
-        conversion += `${getGramsForCompleteMeasurement(
-          ingredientInfo,
-          closestMeasurementInfo
-        )} ${ingredientInfo.ingredientName}\n`;
+        newConversion.push({
+          originalLine: line,
+          parsedLine: ingredientInfo,
+          closestMeasurementKey,
+          newLine: `${getGramsForCompleteMeasurement(
+            ingredientInfo,
+            ingredientsWithMeasurements[closestMeasurementKey]
+          )} ${ingredientInfo.ingredientName}`,
+        });
       }
     }
 
-    setConvertedRecipe(conversion);
+    setConvertedRecipe(newConversion);
   };
 
   return (
@@ -58,21 +80,18 @@ function App() {
         Recipe Converter
       </Heading>
       <div className="container">
-        <Textarea
-          value={recipe}
-          onChange={onInputChange}
-          placeholder="Add recipe here"
-          size="lg"
-          height={300}
-        />
-        <Button
-          onClick={onConvertRecipe}
-          width="19rem"
-          isDisabled={recipe.length === 0}
-        >
+        <RecipeTextArea recipe={recipe} onInputChange={onInputChange} />
+        <Button onClick={onConvertRecipe} isDisabled={recipe.length === 0}>
           Convert Recipe
         </Button>
-        <Textarea isDisabled size="lg" height={300} value={convertedRecipe} />
+        <RecipeTextArea
+          isDisabled
+          recipe={convertedRecipe.map((x) => x.newLine).join("\n")}
+        />
+        <RecipeTable
+          data={convertedRecipe}
+          setConvertedRecipe={setConvertedRecipe}
+        />
       </div>
     </>
   );

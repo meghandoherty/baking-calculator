@@ -55,9 +55,16 @@ export type ConversionRate = {
   };
 };
 
-export type IngredientInformation = {
+export type ParsedLine = {
   ingredientName: string;
   quantityType: "simple" | "range" | "twoUnitsWithMath";
   regexMatch: RegExpMatchArray;
   isMetric?: boolean;
+};
+
+export type IngredientConversionInformation = {
+  originalLine: string;
+  parsedLine?: ParsedLine;
+  closestMeasurementKey?: string;
+  newLine: string;
 };

@@ -5,7 +5,6 @@ import {
   ingredientAliases,
   ingredientsFuse,
 } from "./constants";
-import { ingredientsWithMeasurements } from "./ingredients";
 import {
   EGG_SIZE,
   MATH_OPERATOR,
@@ -28,9 +27,9 @@ import {
   twoQuantitiesAndUnitsWithMathLineRegex,
 } from "./regex";
 import {
-  IngredientInformation,
   Measurement,
   MeasurementOption,
+  ParsedLine,
   isConversionRateKey,
   isMeasurementOption,
   isMetricUnit,
@@ -45,11 +44,9 @@ const standardizeUnit = (unit: MeasurementOption): MeasurementOption => {
 };
 
 /* Given a line from a recipe, identify the kind of quantity and unit it is and separate the ingredient name */
-export const parseRecipeLine = (
-  recipeLine: string
-): IngredientInformation | undefined => {
+export const parseRecipeLine = (recipeLine: string): ParsedLine | undefined => {
   // Test out possible options for quantity and unit
-  let result: Partial<IngredientInformation> = {};
+  let result: Partial<ParsedLine> = {};
   const trimmedRecipeLine = recipeLine.replace(/optional:?/i, "").trim();
 
   // Math quantity
@@ -115,7 +112,7 @@ export const parseRecipeLine = (
 
     result.ingredientName = ingredientName;
 
-    return result as IngredientInformation;
+    return result as ParsedLine;
   }
 
   // Special case for eggs
@@ -163,9 +160,7 @@ export const findClosestKeySingle = (
 };
 
 /* Given an ingredient name, find the closest match in the ingredients map. This could include an or */
-export const findClosestKey = (
-  ingredientName: string
-): Measurement | undefined => {
+export const findClosestKey = (ingredientName: string): string | undefined => {
   // Remove anything in parentheses or after comma, that's usually about temperature or other info
   const ingredientWithoutParentheses = ingredientName.replace(
     / *\([^)]*\) */g,
@@ -181,9 +176,7 @@ export const findClosestKey = (
   if (!orIngredients) {
     // Only 1 ingredient listed
     const closestKey = findClosestKeySingle(ingredientNameWithoutComma);
-    return closestKey
-      ? ingredientsWithMeasurements[closestKey.item]
-      : undefined;
+    return closestKey ? closestKey.item : undefined;
   } else {
     // Figure out closest key for both
     const closestKey1 = findClosestKeySingle(orIngredients[1]);
@@ -191,21 +184,19 @@ export const findClosestKey = (
 
     if (closestKey1 && closestKey2) {
       // Score shouldn't be undefined, but just in case
-      if (closestKey1.score === undefined)
-        return ingredientsWithMeasurements[closestKey2.item];
-      else if (closestKey2.score === undefined)
-        return ingredientsWithMeasurements[closestKey1.item];
+      if (closestKey1.score === undefined) return closestKey2.item;
+      else if (closestKey2.score === undefined) return closestKey1.item;
       // Return the one with the lower score
       else
         return closestKey1.score < closestKey2.score
-          ? ingredientsWithMeasurements[closestKey1.item]
-          : ingredientsWithMeasurements[closestKey2.item];
+          ? closestKey1.item
+          : closestKey2.item;
     } else if (closestKey1) {
       // Only the first ingredient had a match
-      return ingredientsWithMeasurements[closestKey1.item];
+      return closestKey1.item;
     } else if (closestKey2) {
       // Only the second ingredient had a match
-      return ingredientsWithMeasurements[closestKey2.item];
+      return closestKey2.item;
     } else {
       // Neither had a match
       return undefined;
@@ -250,7 +241,7 @@ export const getGramsForSingleMeasurement = (
 
 /* Given an ingredient name and measurement, convert it to the number of grams */
 export const getGramsForCompleteMeasurement = (
-  ingredientInfo: IngredientInformation,
+  ingredientInfo: ParsedLine,
   measurementInfo: Measurement
 ): string => {
   // Handle measurement that needs math

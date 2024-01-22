@@ -2,13 +2,11 @@ import Fuse from "fuse.js";
 import { ingredientsWithMeasurements } from "./ingredients";
 import { ConversionRate } from "./types";
 
-export const ingredientsFuse = new Fuse(
-  Object.keys(ingredientsWithMeasurements),
-  {
-    includeScore: true,
-    ignoreLocation: true,
-  }
-);
+export const ingredientNames = Object.keys(ingredientsWithMeasurements);
+export const ingredientsFuse = new Fuse(ingredientNames, {
+  includeScore: true,
+  ignoreLocation: true,
+});
 
 // For math, first number is unit from map, second number is unit from recipe
 export const conversionRates: ConversionRate = {
