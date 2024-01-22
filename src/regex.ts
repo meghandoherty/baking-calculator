@@ -4,6 +4,9 @@ import { MEASUREMENT_OPTION } from "./types";
 // 113g or 1/2 cup unsalted butter at room temperature
 // 80g or 1/2 cup plus 2 tablespoons all purpose flour
 
+// TODO: two ingredients together
+// 1 large egg + 1 egg yolk, at room temperature
+
 // example: 1, 10, 1 1/2, 1 / 2, ⅕
 export const numberRegex =
   /((?:\d+)? ?(?:and )?(?:\d+ ?\/ ?\d+)|(?:\d+ ?[½¼¾⅓⅔⅕⅖⅗⅘⅙⅔¾⅛⅜⅝⅞])|(?:\d+\.\d+)|(?:\d+|[½¼¾⅓⅔⅕⅖⅗⅘⅙⅔¾⅛⅜⅝⅞]))/;
