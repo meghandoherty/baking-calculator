@@ -44,7 +44,7 @@ function App() {
           parsedLine: ingredientInfo,
           newLine: `${getGramsFromMetricMeasurement(
             ingredientInfo.regexMatch
-          )}) ${ingredientInfo.ingredientName}`,
+          )} ${ingredientInfo.ingredientName}`,
         });
         continue;
       }
