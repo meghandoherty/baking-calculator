@@ -2,7 +2,7 @@ import Fuse from "fuse.js";
 import { ingredientsWithMeasurements } from "./ingredients";
 import { ConversionRate } from "./types";
 
-export const ingredientNames = Object.keys(ingredientsWithMeasurements);
+export const ingredientNames = Object.keys(ingredientsWithMeasurements).sort();
 export const ingredientsFuse = new Fuse(ingredientNames, {
   includeScore: true,
   ignoreLocation: true,

@@ -86,7 +86,9 @@ const RecipeTable = ({ data, setConvertedRecipe }: RecipeTableProps) => {
                     variant="flushed"
                     isClearable
                     isDisabled={recipeLine.parsedLine === undefined}
+                    menuPlacement="auto"
                     onChange={(option) => onIngredientChange(option, idx)}
+                    menuPortalTarget={document.querySelector("body")}
                     placeholder={
                       recipeLine.parsedLine === undefined
                         ? "Unable to parse line"

@@ -122,7 +122,7 @@ export const ingredientsWithMeasurements: IngredientsAndMeasurements = {
   "Dried whole milk (powdered)": { cup: 100 },
   "Durum Flour": { cup: 124 },
   "Easy Roll Dough Improver": { tablespoon: 9 },
-  "Egg (fresh)": { large: 50 },
+  "Egg (fresh)": { large: 50, medium: 44, small: 38 },
   "Egg white (fresh)": { large: 35 },
   "Dried egg white": { tablespoon: 5.5 },
   "Egg yolk (fresh)": { large: 14 },
@@ -310,4 +310,5 @@ export const ingredientsWithMeasurements: IngredientsAndMeasurements = {
   // Non-KAF
   Vinegar: { tablespoon: 15 },
   "Almond milk": { cup: 240 },
+  Bananas: { large: 136, medium: 118, small: 101 },
 };

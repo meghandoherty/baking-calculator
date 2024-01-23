@@ -56,8 +56,8 @@ function App() {
         newConversion.push({
           originalLine: line,
           newLine: line,
+          parsedLine: ingredientInfo,
         });
-        continue;
       } else {
         newConversion.push({
           originalLine: line,

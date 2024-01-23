@@ -17,11 +17,14 @@ export const MEASUREMENT_OPTION = [
   "ounce",
   "lb",
   "pound",
-  "large", // Used for eggs only
   "gram",
   "g",
   "ml",
   "milliliter",
+  // Used for eggs, fruit
+  "large",
+  "medium",
+  "small",
 ] as const;
 
 export type MeasurementOption = (typeof MEASUREMENT_OPTION)[number];
