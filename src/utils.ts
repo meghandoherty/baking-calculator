@@ -47,7 +47,10 @@ const standardizeUnit = (unit: MeasurementOption): MeasurementOption => {
 export const parseRecipeLine = (recipeLine: string): ParsedLine | undefined => {
   // Test out possible options for quantity and unit
   let result: Partial<ParsedLine> = {};
-  const trimmedRecipeLine = recipeLine.replace(/optional:?/i, "").trim();
+  const trimmedRecipeLine = recipeLine
+    .replace(/optional:?/i, "")
+    .replace("cold", " ")
+    .trim();
 
   // Math quantity
   const twoQuantities = trimmedRecipeLine.match(

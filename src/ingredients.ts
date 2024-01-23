@@ -237,6 +237,7 @@ export const ingredientsWithMeasurements: IngredientsAndMeasurements = {
   "Kosher Salt, Diamond Crystal": { tablespoon: 8 },
   "Kosher Salt, Morton's": { tablespoon: 16 },
   Salt: { tablespoon: 18 },
+  "Sea Salt": { teaspoon: 4 },
   "Scallions (sliced)": { cup: 64 },
   "Self-Rising Flour": { cup: 113 },
   "Semolina Flour": { cup: 163 },
@@ -293,4 +294,9 @@ export const ingredientsWithMeasurements: IngredientsAndMeasurements = {
   Vinegar: { tablespoon: 15 },
   "Almond milk": { cup: 240 },
   Bananas: { large: 136, medium: 118, small: 101 },
+  Nutella: { tablespoon: 18.5 },
+  Biscoff: { tablespoon: 15 },
+  Potatoes: { small: 170, medium: 213, large: 369 },
+  "Garlic Powder": { teaspoon: 3 },
+  "Onion Powder": { teaspoon: 2 },
 };

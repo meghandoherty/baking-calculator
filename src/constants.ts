@@ -28,6 +28,7 @@ export const conversionRates: ConversionRate = {
 export const ingredientAliases: Record<string, string> = {
   "powdered sugar": "confectioners sugar",
   "light brown sugar": "brown sugar",
+  "packed light brown sugar": "brown sguar",
   sugar: "sugar (granulated (white)",
   "salted butter": "butter",
   "unsalted butter": "butter",
@@ -41,5 +42,7 @@ export const ingredientAliases: Record<string, string> = {
   "dutch process cocoa powder": "cocoa powder (unsweetened)",
   "dark brown sugar": "Brown sugar (dark or light, packed)",
   flour: "All-Purpose Flour",
+  "unbleached all-purpose flour": "All-Purpose Flour",
   "unsweetened vanilla almond milk": "Almond milk",
+  "chopped walnuts": "walnuts (chopped)",
 };
