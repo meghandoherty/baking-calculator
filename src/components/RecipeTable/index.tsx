@@ -66,7 +66,7 @@ const RecipeTable = ({ data, setConvertedRecipe }: RecipeTableProps) => {
         Detailed Conversion
       </Heading>
       <TableContainer>
-        <Table variant="striped">
+        <Table variant="striped" style={{ whiteSpace: "normal" }}>
           <Thead>
             <Tr>
               <Th>Original Line</Th>
@@ -79,30 +79,32 @@ const RecipeTable = ({ data, setConvertedRecipe }: RecipeTableProps) => {
               <Tr key={`${idx} ${recipeLine.newLine}`}>
                 <Td>{recipeLine.originalLine}</Td>
                 <Td>
-                  <Select
-                    options={ingredientNameOptions}
-                    size="sm"
-                    useBasicStyles
-                    variant="flushed"
-                    isClearable
-                    isDisabled={recipeLine.parsedLine === undefined}
-                    menuPlacement="auto"
-                    onChange={(option) => onIngredientChange(option, idx)}
-                    menuPortalTarget={document.querySelector("body")}
-                    placeholder={
-                      recipeLine.parsedLine === undefined
-                        ? "Unable to parse line"
-                        : "Select an ingredient"
-                    }
-                    defaultValue={
-                      recipeLine.closestMeasurementKey
-                        ? {
-                            label: recipeLine.closestMeasurementKey,
-                            value: recipeLine.closestMeasurementKey,
-                          }
-                        : undefined
-                    }
-                  />
+                  <div style={{ display: "inline-flex" }}>
+                    <Select
+                      options={ingredientNameOptions}
+                      size="sm"
+                      useBasicStyles
+                      variant="flushed"
+                      isClearable
+                      isDisabled={recipeLine.parsedLine === undefined}
+                      menuPlacement="auto"
+                      onChange={(option) => onIngredientChange(option, idx)}
+                      menuPortalTarget={document.querySelector("body")}
+                      placeholder={
+                        recipeLine.parsedLine === undefined
+                          ? "Unable to parse line"
+                          : "Select an ingredient"
+                      }
+                      defaultValue={
+                        recipeLine.closestMeasurementKey
+                          ? {
+                              label: recipeLine.closestMeasurementKey,
+                              value: recipeLine.closestMeasurementKey,
+                            }
+                          : undefined
+                      }
+                    />
+                  </div>
                 </Td>
                 <Td>{recipeLine.newLine}</Td>
               </Tr>

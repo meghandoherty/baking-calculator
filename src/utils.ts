@@ -47,10 +47,9 @@ const standardizeUnit = (unit: MeasurementOption): MeasurementOption => {
 export const parseRecipeLine = (recipeLine: string): ParsedLine | undefined => {
   // Test out possible options for quantity and unit
   let result: Partial<ParsedLine> = {};
-  const trimmedRecipeLine = recipeLine
-    .replace(/optional:?/i, "")
-    .replace("cold", " ")
-    .trim();
+
+  // Get rid of some common words that don't matter and throw off matching
+  const trimmedRecipeLine = recipeLine.replace(/optional:?/i, "").trim();
 
   // Math quantity
   const twoQuantities = trimmedRecipeLine.match(
@@ -139,11 +138,19 @@ export const parseRecipeLine = (recipeLine: string): ParsedLine | undefined => {
 export const findClosestKeySingle = (
   ingredientName: string
 ): FuseResult<string> | undefined => {
-  const lowerCaseIngredientName = ingredientName.toLowerCase();
+  const lowerCaseIngredientName = ingredientName
+    .toLowerCase()
+    .replace(/cold/g, " ")
+    .replace(/room temperature/g, " ")
+    .replace(/unsweetened/g, " ")
+    .replace(/unbleached/g, " ")
+    .replace(/,/g, " ")
+    .trim();
+
   const searchTerm =
     lowerCaseIngredientName in ingredientAliases
       ? ingredientAliases[lowerCaseIngredientName]
-      : ingredientName;
+      : lowerCaseIngredientName;
 
   const potentialMatches = ingredientsFuse.search(searchTerm);
   if (
@@ -169,8 +176,6 @@ export const findClosestKey = (ingredientName: string): string | undefined => {
     / *\([^)]*\) */g,
     ""
   );
-  const ingredientNameWithoutComma = ingredientWithoutParentheses.split(",")[0];
-
   // Are the ingredients or-ed? If so, compare
   const orIngredients = ingredientWithoutParentheses.match(
     ingredientWithOrOptions
@@ -178,7 +183,7 @@ export const findClosestKey = (ingredientName: string): string | undefined => {
 
   if (!orIngredients) {
     // Only 1 ingredient listed
-    const closestKey = findClosestKeySingle(ingredientNameWithoutComma);
+    const closestKey = findClosestKeySingle(ingredientWithoutParentheses);
     return closestKey ? closestKey.item : undefined;
   } else {
     // Figure out closest key for both

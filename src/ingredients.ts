@@ -31,7 +31,7 @@ export const ingredientsWithMeasurements: IngredientsAndMeasurements = {
   "Berries (frozen)": { cup: 142 },
   "Cheddar Cheese Powder": { cup: 114 },
   "Blueberries (dried)": { cup: 156 },
-  "Blueberries (fresh or frozen)": { cup: 140 },
+  Blueberries: { cup: 140 },
   "Blueberry juice": { cup: 241 },
   "Boiled cider": { cup: 340 },
   "Bran cereal": { cup: 60 },
@@ -299,4 +299,6 @@ export const ingredientsWithMeasurements: IngredientsAndMeasurements = {
   Potatoes: { small: 170, medium: 213, large: 369 },
   "Garlic Powder": { teaspoon: 3 },
   "Onion Powder": { teaspoon: 2 },
+  Cinnamon: { teaspoon: 3 },
+  "Almond Extract": { teaspoon: 5 },
 };
