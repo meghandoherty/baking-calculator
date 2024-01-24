@@ -40,7 +40,7 @@ const RecipeTable = ({ data, setConvertedRecipe }: RecipeTableProps) => {
       data.map((item, idx) => {
         if (idx !== index) return item;
 
-        if (option === null || !data[idx].parsedLine === undefined) {
+        if (option === null || data[idx].parsedLine === undefined) {
           return {
             ...item,
             closestMeasurementKey: undefined,
