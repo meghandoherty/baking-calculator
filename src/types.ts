@@ -69,5 +69,6 @@ export type IngredientConversionInformation = {
   originalLine: string;
   parsedLine?: ParsedLine;
   closestMeasurementKey?: string;
-  newLine: string;
+  measurementInGrams?: number | number[];
+  metricUnit?: string; // only used if metric provided in originalLine
 };

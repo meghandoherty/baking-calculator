@@ -3,10 +3,13 @@ import { useState } from "react";
 import "./App.css";
 import RecipeTable from "./components/RecipeTable";
 import RecipeTextArea from "./components/RecipeTextArea";
+import ScaleInput from "./components/ScaleInput";
 import { ingredientsWithMeasurements } from "./ingredients";
+import { METRIC_UNIT } from "./regex";
 import { IngredientConversionInformation } from "./types";
 import {
   findClosestKey,
+  getConvertedLine,
   getGramsForCompleteMeasurement,
   getGramsFromMetricMeasurement,
   parseRecipeLine,
@@ -17,6 +20,9 @@ function App() {
   const [convertedRecipe, setConvertedRecipe] = useState<
     IngredientConversionInformation[]
   >([]);
+  const [scale, setScale] = useState(1);
+
+  const usableScale = scale > 0 ? scale : 1;
 
   const onInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setRecipe(e.target.value);
@@ -27,47 +33,53 @@ function App() {
     for (const line of recipe.split("\n")) {
       if (line.length === 0) continue;
 
-      const ingredientInfo = parseRecipeLine(line);
+      const parsedLine = parseRecipeLine(line);
 
-      if (!ingredientInfo) {
+      if (!parsedLine) {
         newConversion.push({
           originalLine: line,
-          newLine: line,
         });
         continue;
       }
 
-      // If given ounces or grams, just convert quickly
-      if (ingredientInfo.isMetric) {
-        newConversion.push({
-          originalLine: line,
-          parsedLine: ingredientInfo,
-          newLine: `${getGramsFromMetricMeasurement(
-            ingredientInfo.regexMatch
-          )} ${ingredientInfo.ingredientName}`,
-        });
-        continue;
-      }
+      const closestMeasurementKey = findClosestKey(parsedLine.ingredientName);
 
-      const closestMeasurementKey = findClosestKey(
-        ingredientInfo.ingredientName
-      );
       if (!closestMeasurementKey) {
         newConversion.push({
           originalLine: line,
-          newLine: line,
-          parsedLine: ingredientInfo,
+          parsedLine: parsedLine,
         });
       } else {
-        newConversion.push({
-          originalLine: line,
-          parsedLine: ingredientInfo,
-          closestMeasurementKey,
-          newLine: `${getGramsForCompleteMeasurement(
-            ingredientInfo,
-            ingredientsWithMeasurements[closestMeasurementKey]
-          )} ${ingredientInfo.ingredientName}`,
-        });
+        // If given ounces or grams, just convert quickly
+        if (parsedLine.isMetric) {
+          const originalUnit = parsedLine.regexMatch[METRIC_UNIT].toLowerCase();
+          const isOunces = originalUnit === "oz" || originalUnit === "ounce";
+
+          newConversion.push({
+            originalLine: line,
+            parsedLine: parsedLine,
+            closestMeasurementKey,
+            measurementInGrams: getGramsFromMetricMeasurement(
+              parsedLine.regexMatch,
+              isOunces,
+              parsedLine.quantityType === "range"
+            ),
+            metricUnit:
+              originalUnit === "milliliter" || originalUnit === "ml"
+                ? "ml"
+                : "g",
+          });
+        } else {
+          newConversion.push({
+            originalLine: line,
+            parsedLine: parsedLine,
+            closestMeasurementKey,
+            measurementInGrams: getGramsForCompleteMeasurement(
+              parsedLine,
+              ingredientsWithMeasurements[closestMeasurementKey]
+            ),
+          });
+        }
       }
     }
 
@@ -81,16 +93,22 @@ function App() {
       </Heading>
       <div className="container">
         <RecipeTextArea recipe={recipe} onInputChange={onInputChange} />
-        <Button onClick={onConvertRecipe} isDisabled={recipe.length === 0}>
-          Convert Recipe
-        </Button>
+        <div className="controls">
+          <Button onClick={onConvertRecipe} isDisabled={recipe.length === 0}>
+            Convert Recipe
+          </Button>
+          <ScaleInput scale={scale} setScale={setScale} />
+        </div>
         <RecipeTextArea
           isDisabled
-          recipe={convertedRecipe.map((x) => x.newLine).join("\n")}
+          recipe={convertedRecipe
+            .map((x) => getConvertedLine(x, usableScale))
+            .join("\n")}
         />
         <RecipeTable
           data={convertedRecipe}
           setConvertedRecipe={setConvertedRecipe}
+          scale={usableScale}
         />
       </div>
     </>

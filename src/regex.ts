@@ -61,12 +61,13 @@ export const MATH_UNIT_2 = 5;
 export const ingredientWithOrOptions = /(.*)\sor\s(.*)/i;
 
 // example: (1 ounce), (10 - 12 oz), [1 gram], (10 g)
-// result: [ "(140 grams)", "140", "gram" ]
-// result: [ "(100 - 200 grams)", "100 - 200", "gram" ]
+// result: [ "(140 grams)", "140", undefined, "gram" ]
+// result: [ "(100 - 200 grams)", "100", "200", "gram" ]
 export const ouncesOrGramsInParenthesesRegex =
-  /(?:\(|\[)(\d+(?: ?- ?\d+)?) ?(ounce|oz|gram|g|ml|milliliter)s?(?:\)|\])/;
-export const METRIC_AMOUNT = 1;
-export const METRIC_UNIT = 2;
+  /(?:\(|\[)(?:(\d+)(?: ?- ?(\d+))?) ?(ounce|oz|gram|g|ml|milliliter)s?(?:\)|\])/;
+export const METRIC_QUANTITY_1 = 1;
+export const METRIC_QUANTITY_2 = 2;
+export const METRIC_UNIT = 3;
 
 // example: 1 egg, 1 large egg, 2 egg yolks
 // result: [ "1 egg", "1", undefined, "egg" ]

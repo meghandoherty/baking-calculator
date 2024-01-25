@@ -12,8 +12,8 @@ import {
   MATH_QUANTITY_2,
   MATH_UNIT_1,
   MATH_UNIT_2,
-  METRIC_AMOUNT,
-  METRIC_UNIT,
+  METRIC_QUANTITY_1,
+  METRIC_QUANTITY_2,
   RANGE_QUANTITY_1,
   RANGE_QUANTITY_2,
   RANGE_UNIT,
@@ -27,6 +27,7 @@ import {
   twoQuantitiesAndUnitsWithMathLineRegex,
 } from "./regex";
 import {
+  IngredientConversionInformation,
   Measurement,
   MeasurementOption,
   ParsedLine,
@@ -108,6 +109,7 @@ export const parseRecipeLine = (recipeLine: string): ParsedLine | undefined => {
         ...result,
         regexMatch: ouncesOrGrams,
         isMetric: true,
+        quantityType: ouncesOrGrams[METRIC_QUANTITY_2] ? "range" : "simple",
       };
       ingredientName = ingredientName.replace(ouncesOrGrams[0], "").trim();
     }
@@ -251,7 +253,7 @@ export const getGramsForSingleMeasurement = (
 export const getGramsForCompleteMeasurement = (
   ingredientInfo: ParsedLine,
   measurementInfo: Measurement
-): string => {
+): number | number[] | undefined => {
   // Handle measurement that needs math
   if (ingredientInfo.quantityType === "twoUnitsWithMath") {
     const grams1 = getGramsForSingleMeasurement(
@@ -269,16 +271,16 @@ export const getGramsForCompleteMeasurement = (
       console.error(
         `Couldn't find grams for ${ingredientInfo} to add or subtract`
       );
-      return ingredientInfo.regexMatch[0];
+      return undefined;
     }
 
     if (
       ingredientInfo.regexMatch[MATH_OPERATOR] === "plus" ||
       ingredientInfo.regexMatch[MATH_OPERATOR] === "+"
     ) {
-      return `${grams1 + grams2} g`;
+      return grams1 + grams2;
     } else {
-      return `${grams1 - grams2} g`;
+      return grams1 - grams2;
     }
   }
 
@@ -297,10 +299,10 @@ export const getGramsForCompleteMeasurement = (
 
     if (!grams1 || !grams2) {
       console.error(`Couldn't find grams for ${ingredientInfo} for range`);
-      return ingredientInfo.regexMatch[0];
+      return undefined;
     }
 
-    return `${grams1} - ${grams2} g`;
+    return [grams1, grams2];
   }
 
   if (ingredientInfo.quantityType === "simple") {
@@ -312,14 +314,14 @@ export const getGramsForCompleteMeasurement = (
 
     if (!result) {
       console.error(`Couldn't find grams for ${ingredientInfo}`);
-      return ingredientInfo.regexMatch[0];
+      return undefined;
     }
 
-    return `${result} g`;
+    return result;
   }
 
-  // backup - return the original measurement
-  return ingredientInfo.regexMatch[0];
+  // backup
+  return undefined;
 };
 
 const convertOuncesToGrams = (ounces: number): number =>
@@ -327,27 +329,42 @@ const convertOuncesToGrams = (ounces: number): number =>
 
 /* Given a measurement in ounces, convert it into grams with some easy multiplication */
 export const getGramsFromMetricMeasurement = (
-  metricMeasurement: RegExpMatchArray
-): string => {
-  const isOunces =
-    metricMeasurement[METRIC_UNIT].toLowerCase() === "oz" ||
-    metricMeasurement[METRIC_UNIT].toLowerCase() === "ounce";
-  // Is the amount a range?
-  const possibleRange = metricMeasurement[METRIC_AMOUNT].split(/[-–+]/g);
-
-  if (possibleRange.length === 1) {
+  metricMeasurement: RegExpMatchArray,
+  isOunces: boolean,
+  isRange: boolean
+): number | number[] => {
+  if (isRange) {
+    const quantities = [
+      metricMeasurement[METRIC_QUANTITY_1],
+      metricMeasurement[METRIC_QUANTITY_2],
+    ];
     return isOunces
-      ? `${convertOuncesToGrams(numericQuantity(possibleRange[0].trim()))} g`
-      : `${numericQuantity(possibleRange[0])} ${
-          metricMeasurement[METRIC_UNIT]
-        }`;
+      ? quantities.map((x) => convertOuncesToGrams(numericQuantity(x.trim())))
+      : quantities.map((x) => numericQuantity(x.trim()));
   }
 
   return isOunces
-    ? `${possibleRange
-        .map((x) => convertOuncesToGrams(numericQuantity(x.trim())))
-        .join(" g - ")} g`
-    : `${possibleRange.map((x) => numericQuantity(x.trim())).join(" - ")} ${
-        metricMeasurement[METRIC_UNIT]
-      }`;
+    ? convertOuncesToGrams(numericQuantity(metricMeasurement[SIMPLE_QUANTITY]))
+    : numericQuantity(metricMeasurement[SIMPLE_QUANTITY]);
+};
+
+export const getConvertedLine = (
+  ingredientConversionInfo: IngredientConversionInformation,
+  scale: number
+): string => {
+  const unit = ingredientConversionInfo.metricUnit
+    ? ingredientConversionInfo.metricUnit
+    : "g";
+
+  if (!ingredientConversionInfo.measurementInGrams) {
+    return ingredientConversionInfo.originalLine;
+  } else if (ingredientConversionInfo.measurementInGrams instanceof Array) {
+    return `${ingredientConversionInfo.measurementInGrams[0] * scale} - ${
+      ingredientConversionInfo.measurementInGrams[1] * scale
+    } ${unit} ${ingredientConversionInfo.parsedLine?.ingredientName}`;
+  } else {
+    return `${ingredientConversionInfo.measurementInGrams * scale} ${unit} ${
+      ingredientConversionInfo.parsedLine?.ingredientName
+    }`;
+  }
 };

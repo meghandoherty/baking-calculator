@@ -13,16 +13,17 @@ import { useMemo } from "react";
 import { ingredientNames } from "../../constants";
 import { ingredientsWithMeasurements } from "../../ingredients";
 import { IngredientConversionInformation } from "../../types";
-import { getGramsForCompleteMeasurement } from "../../utils";
+import { getConvertedLine, getGramsForCompleteMeasurement } from "../../utils";
 
 interface RecipeTableProps {
   data: IngredientConversionInformation[];
   setConvertedRecipe: React.Dispatch<
     React.SetStateAction<IngredientConversionInformation[]>
   >;
+  scale: number;
 }
 
-const RecipeTable = ({ data, setConvertedRecipe }: RecipeTableProps) => {
+const RecipeTable = ({ data, setConvertedRecipe, scale }: RecipeTableProps) => {
   const ingredientNameOptions = useMemo(
     () => ingredientNames.map((name) => ({ value: name, label: name })),
     []
@@ -40,21 +41,23 @@ const RecipeTable = ({ data, setConvertedRecipe }: RecipeTableProps) => {
       data.map((item, idx) => {
         if (idx !== modifiedIndex) return item;
 
+        // Item name removed, reset closestMeasurementKey and measurementInGrams
         if (option === null || item.parsedLine === undefined) {
           return {
             ...item,
             closestMeasurementKey: undefined,
-            newLine: item.originalLine,
+            measurementInGrams: undefined,
           };
         }
 
+        // New item match, recalcualte measurementInGrams
         return {
           ...item,
           closestMeasurementKey: option.value,
-          newLine: `${getGramsForCompleteMeasurement(
+          measurementInGrams: getGramsForCompleteMeasurement(
             item.parsedLine,
             ingredientsWithMeasurements[option.value]
-          )} ${item.parsedLine.ingredientName}`,
+          ),
         };
       })
     );
@@ -76,7 +79,7 @@ const RecipeTable = ({ data, setConvertedRecipe }: RecipeTableProps) => {
           </Thead>
           <Tbody>
             {data.map((recipeLine, idx) => (
-              <Tr key={`${idx} ${recipeLine.newLine}`}>
+              <Tr key={`${idx} ${recipeLine.originalLine}`}>
                 <Td>{recipeLine.originalLine}</Td>
                 <Td>
                   <Select
@@ -105,7 +108,7 @@ const RecipeTable = ({ data, setConvertedRecipe }: RecipeTableProps) => {
                     }
                   />
                 </Td>
-                <Td>{recipeLine.newLine}</Td>
+                <Td>{getConvertedLine(recipeLine, scale)}</Td>
               </Tr>
             ))}
           </Tbody>
@@ -114,5 +117,4 @@ const RecipeTable = ({ data, setConvertedRecipe }: RecipeTableProps) => {
     </section>
   );
 };
-
 export default RecipeTable;
