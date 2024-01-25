@@ -77,4 +77,9 @@
   td:nth-of-type(3):before {
     content: "Converted Line:";
   }
+
+  .select-inline {
+    display: inline-block;
+    min-width: 10.625rem;
+  }
 }

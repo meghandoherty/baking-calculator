@@ -34,13 +34,13 @@ const RecipeTable = ({ data, setConvertedRecipe }: RecipeTableProps) => {
       label: string;
       value: string;
     }> | null,
-    index: number
+    modifiedIndex: number
   ) => {
     setConvertedRecipe(
       data.map((item, idx) => {
-        if (idx !== index) return item;
+        if (idx !== modifiedIndex) return item;
 
-        if (option === null || data[idx].parsedLine === undefined) {
+        if (option === null || item.parsedLine === undefined) {
           return {
             ...item,
             closestMeasurementKey: undefined,
@@ -52,9 +52,9 @@ const RecipeTable = ({ data, setConvertedRecipe }: RecipeTableProps) => {
           ...item,
           closestMeasurementKey: option.value,
           newLine: `${getGramsForCompleteMeasurement(
-            data[idx].parsedLine!,
+            item.parsedLine,
             ingredientsWithMeasurements[option.value]
-          )} ${data[idx].parsedLine!.ingredientName}`,
+          )} ${item.parsedLine.ingredientName}`,
         };
       })
     );
@@ -79,32 +79,31 @@ const RecipeTable = ({ data, setConvertedRecipe }: RecipeTableProps) => {
               <Tr key={`${idx} ${recipeLine.newLine}`}>
                 <Td>{recipeLine.originalLine}</Td>
                 <Td>
-                  <div style={{ display: "inline-flex" }}>
-                    <Select
-                      options={ingredientNameOptions}
-                      size="sm"
-                      useBasicStyles
-                      variant="flushed"
-                      isClearable
-                      isDisabled={recipeLine.parsedLine === undefined}
-                      menuPlacement="auto"
-                      onChange={(option) => onIngredientChange(option, idx)}
-                      menuPortalTarget={document.querySelector("body")}
-                      placeholder={
-                        recipeLine.parsedLine === undefined
-                          ? "Unable to parse line"
-                          : "Select an ingredient"
-                      }
-                      defaultValue={
-                        recipeLine.closestMeasurementKey
-                          ? {
-                              label: recipeLine.closestMeasurementKey,
-                              value: recipeLine.closestMeasurementKey,
-                            }
-                          : undefined
-                      }
-                    />
-                  </div>
+                  <Select
+                    className="select-inline"
+                    options={ingredientNameOptions}
+                    size="sm"
+                    useBasicStyles
+                    variant="flushed"
+                    isClearable
+                    isDisabled={recipeLine.parsedLine === undefined}
+                    menuPlacement="auto"
+                    onChange={(option) => onIngredientChange(option, idx)}
+                    menuPortalTarget={document.querySelector("body")}
+                    placeholder={
+                      recipeLine.parsedLine === undefined
+                        ? "Unable to parse line"
+                        : "Select an ingredient"
+                    }
+                    defaultValue={
+                      recipeLine.closestMeasurementKey
+                        ? {
+                            label: recipeLine.closestMeasurementKey,
+                            value: recipeLine.closestMeasurementKey,
+                          }
+                        : undefined
+                    }
+                  />
                 </Td>
                 <Td>{recipeLine.newLine}</Td>
               </Tr>
