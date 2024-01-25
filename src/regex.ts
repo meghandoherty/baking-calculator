@@ -60,11 +60,11 @@ export const MATH_UNIT_2 = 5;
 // example: yogurt or sour cream
 export const ingredientWithOrOptions = /(.*)\sor\s(.*)/i;
 
-// example: (1 ounce), (10 - 12 oz), [1 gram], (10 g)
+// example: (1 ounce), (10 - 12 oz), [1 gram], (10 g), / 120 grams
 // result: [ "(140 grams)", "140", undefined, "gram" ]
 // result: [ "(100 - 200 grams)", "100", "200", "gram" ]
 export const ouncesOrGramsInParenthesesRegex =
-  /(?:\(|\[)(?:(\d+)(?: ?- ?(\d+))?) ?(ounce|oz|gram|g|ml|milliliter)s?(?:\)|\])/;
+  /(?:\(|\[|\/ ?)(?:(\d+)(?: ?- ?(\d+))?) ?(ounce|oz|gram|g|ml|milliliter)s?(?:\)|\])?/;
 export const METRIC_QUANTITY_1 = 1;
 export const METRIC_QUANTITY_2 = 2;
 export const METRIC_UNIT = 3;

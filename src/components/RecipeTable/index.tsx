@@ -41,23 +41,27 @@ const RecipeTable = ({ data, setConvertedRecipe, scale }: RecipeTableProps) => {
       data.map((item, idx) => {
         if (idx !== modifiedIndex) return item;
 
-        // Item name removed, reset closestMeasurementKey and measurementInGrams
+        // Item name removed, reset closestMeasurementKey and measurementInGrams (unlcess it was initially provided)
         if (option === null || item.parsedLine === undefined) {
           return {
             ...item,
             closestMeasurementKey: undefined,
-            measurementInGrams: undefined,
+            measurementInGrams: item.metricUnit
+              ? item.measurementInGrams
+              : undefined,
           };
         }
 
-        // New item match, recalcualte measurementInGrams
+        // New item match, recalcualte measurementInGrams unless it's from an initially provided given metric unit
         return {
           ...item,
           closestMeasurementKey: option.value,
-          measurementInGrams: getGramsForCompleteMeasurement(
-            item.parsedLine,
-            ingredientsWithMeasurements[option.value]
-          ),
+          measurementInGrams: item.metricUnit
+            ? item.measurementInGrams
+            : getGramsForCompleteMeasurement(
+                item.parsedLine,
+                ingredientsWithMeasurements[option.value]
+              ),
         };
       })
     );
@@ -79,7 +83,9 @@ const RecipeTable = ({ data, setConvertedRecipe, scale }: RecipeTableProps) => {
           </Thead>
           <Tbody>
             {data.map((recipeLine, idx) => (
-              <Tr key={`${idx} ${recipeLine.originalLine}`}>
+              <Tr
+                key={`${idx} ${recipeLine.originalLine} ${recipeLine.closestMeasurementKey}`}
+              >
                 <Td>{recipeLine.originalLine}</Td>
                 <Td>
                   <Select
