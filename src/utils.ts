@@ -21,6 +21,7 @@ import {
   SIMPLE_UNIT,
   eggLineRegex,
   ingredientWithOrOptions,
+  numbersAtBeginningOfLineRegex,
   ouncesOrGramsInParenthesesRegex,
   rangeQuantityAndUnitLineRegex,
   simpleQuantityAndUnitLineRegex,
@@ -356,15 +357,27 @@ export const getConvertedLine = (
     ? ingredientConversionInfo.metricUnit
     : "g";
 
+  // Couldn't parse the string
   if (!ingredientConversionInfo.measurementInGrams) {
-    return ingredientConversionInfo.originalLine;
-  } else if (ingredientConversionInfo.measurementInGrams instanceof Array) {
+    // Try to scale any numbers at the beginning of a line that wasn't parsed
+    const numberMatch = ingredientConversionInfo.originalLine.match(
+      numbersAtBeginningOfLineRegex
+    );
+
+    if (!numberMatch) return ingredientConversionInfo.originalLine;
+
+    return `${numericQuantity(numberMatch[1]) * scale} ${numberMatch[2]}`;
+  }
+
+  // Could parse and the measurement was a range
+  if (ingredientConversionInfo.measurementInGrams instanceof Array) {
     return `${ingredientConversionInfo.measurementInGrams[0] * scale} - ${
       ingredientConversionInfo.measurementInGrams[1] * scale
     } ${unit} ${ingredientConversionInfo.parsedLine?.ingredientName}`;
-  } else {
-    return `${ingredientConversionInfo.measurementInGrams * scale} ${unit} ${
-      ingredientConversionInfo.parsedLine?.ingredientName
-    }`;
   }
+
+  // Could parse and the measurement was simple
+  return `${ingredientConversionInfo.measurementInGrams * scale} ${unit} ${
+    ingredientConversionInfo.parsedLine?.ingredientName
+  }`;
 };
