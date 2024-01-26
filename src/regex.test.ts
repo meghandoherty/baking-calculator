@@ -8,7 +8,8 @@ import {
   MATH_QUANTITY_2,
   MATH_UNIT_1,
   MATH_UNIT_2,
-  METRIC_AMOUNT,
+  METRIC_QUANTITY_1,
+  METRIC_QUANTITY_2,
   METRIC_UNIT,
   RANGE_QUANTITY_1,
   RANGE_QUANTITY_2,
@@ -132,9 +133,22 @@ describe("simple regexes", () => {
         ouncesOrGramsInParenthesesRegex
       );
       expect(result).not.toBeNull();
-      expect(result).toHaveLength(3);
+      expect(result).toHaveLength(4);
       expect(result![0]).toEqual("[120 g]");
-      expect(result![METRIC_AMOUNT]).toEqual("120");
+      expect(result![METRIC_QUANTITY_1]).toEqual("120");
+      expect(result![METRIC_QUANTITY_2]).toEqual(undefined);
+      expect(result![METRIC_UNIT]).toEqual("g");
+    });
+
+    test("should separate the parts of a range match into an array", () => {
+      const result = "1 cup flour [120 - 140 g]".match(
+        ouncesOrGramsInParenthesesRegex
+      );
+      expect(result).not.toBeNull();
+      expect(result).toHaveLength(4);
+      expect(result![0]).toEqual("[120 - 140 g]");
+      expect(result![METRIC_QUANTITY_1]).toEqual("120");
+      expect(result![METRIC_QUANTITY_2]).toEqual("140");
       expect(result![METRIC_UNIT]).toEqual("g");
     });
   });

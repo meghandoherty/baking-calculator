@@ -303,4 +303,5 @@ export const ingredientsWithMeasurements: IngredientsAndMeasurements = {
   "Almond Extract": { teaspoon: 5 },
   Mustard: { tablespoon: 16 },
   "Dijon Mustard": { teaspoon: 5 },
+  Sprinkles: { cup: 160 },
 };

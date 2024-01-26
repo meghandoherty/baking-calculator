@@ -60,7 +60,7 @@ export type ConversionRate = {
 
 export type ParsedLine = {
   ingredientName: string;
-  quantityType: "simple" | "range" | "twoUnitsWithMath";
+  quantityType: "simple" | "range" | "twoUnitsWithMath" | "extraMetric";
   regexMatch: RegExpMatchArray;
   isMetric?: boolean;
 };

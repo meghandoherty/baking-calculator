@@ -14,6 +14,7 @@ import {
   MATH_UNIT_2,
   METRIC_QUANTITY_1,
   METRIC_QUANTITY_2,
+  METRIC_UNIT,
   RANGE_QUANTITY_1,
   RANGE_QUANTITY_2,
   RANGE_UNIT,
@@ -38,7 +39,7 @@ import {
 } from "./types";
 
 /* Convert unit abbrevitions to their full name */
-const standardizeUnit = (unit: MeasurementOption): MeasurementOption => {
+export const standardizeUnit = (unit: MeasurementOption): MeasurementOption => {
   if (unit === "tbsp") return "tablespoon";
   else if (unit === "tsp") return "teaspoon";
 
@@ -110,7 +111,7 @@ export const parseRecipeLine = (recipeLine: string): ParsedLine | undefined => {
         ...result,
         regexMatch: ouncesOrGrams,
         isMetric: true,
-        quantityType: ouncesOrGrams[METRIC_QUANTITY_2] ? "range" : "simple",
+        quantityType: "extraMetric",
       };
       ingredientName = ingredientName.replace(ouncesOrGrams[0], "").trim();
     }
@@ -380,4 +381,18 @@ export const getConvertedLine = (
   return `${ingredientConversionInfo.measurementInGrams * scale} ${unit} ${
     ingredientConversionInfo.parsedLine?.ingredientName
   }`;
+};
+
+export const getUnit: (parsedLine: ParsedLine) => string = (parsedLine) => {
+  switch (parsedLine.quantityType) {
+    case "simple":
+      return parsedLine.regexMatch[SIMPLE_UNIT];
+    case "range":
+      return parsedLine.regexMatch[RANGE_UNIT];
+    case "extraMetric":
+      return parsedLine.regexMatch[METRIC_UNIT];
+    default:
+      console.error("no match");
+      return "";
+  }
 };

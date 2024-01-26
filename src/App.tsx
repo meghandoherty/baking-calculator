@@ -5,13 +5,13 @@ import RecipeTable from "./components/RecipeTable";
 import RecipeTextArea from "./components/RecipeTextArea";
 import ScaleInput from "./components/ScaleInput";
 import { ingredientsWithMeasurements } from "./ingredients";
-import { METRIC_UNIT } from "./regex";
 import { IngredientConversionInformation } from "./types";
 import {
   findClosestKey,
   getConvertedLine,
   getGramsForCompleteMeasurement,
   getGramsFromMetricMeasurement,
+  getUnit,
   parseRecipeLine,
 } from "./utils";
 
@@ -52,7 +52,7 @@ function App() {
       } else {
         // If given ounces or grams, just convert quickly
         if (parsedLine.isMetric) {
-          const originalUnit = parsedLine.regexMatch[METRIC_UNIT].toLowerCase();
+          const originalUnit = getUnit(parsedLine).toLowerCase();
           const isOunces = originalUnit === "oz" || originalUnit === "ounce";
 
           newConversion.push({
