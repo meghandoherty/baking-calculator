@@ -168,7 +168,7 @@ export const findClosestKeySingle = (
     );
     return potentialMatches[0];
   } else {
-    console.error(`No match found for '${searchTerm}!'`, potentialMatches);
+    console.error(`No match found for '${searchTerm}'`, potentialMatches);
     return undefined;
   }
 };
