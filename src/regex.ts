@@ -79,5 +79,8 @@ export const EGG_SIZE = 2;
 export const EGG_TYPE = 3;
 
 // example 1 cup flour
-// result: ["1 cup flour", "1", "cup flour"]
-export const numbersAtBeginningOfLineRegex = /^(\d+) (.*)/;
+// result: ["1 cup flour", "1", undefined, "cup flour"]
+// result: ["1 - 2 cups flour", "1", "2", "cup flour"]
+export const numbersAtBeginningOfLineRegex = new RegExp(
+  `^${numberRegex.source} (?:(?:-|–|to) ${numberRegex.source} )?(.*)`
+);

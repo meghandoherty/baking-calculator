@@ -21,9 +21,15 @@ interface RecipeTableProps {
     React.SetStateAction<IngredientConversionInformation[]>
   >;
   scale: number;
+  keepTeaspoons: boolean;
 }
 
-const RecipeTable = ({ data, setConvertedRecipe, scale }: RecipeTableProps) => {
+const RecipeTable = ({
+  data,
+  setConvertedRecipe,
+  scale,
+  keepTeaspoons,
+}: RecipeTableProps) => {
   const ingredientNameOptions = useMemo(
     () => ingredientNames.map((name) => ({ value: name, label: name })),
     []
@@ -114,7 +120,7 @@ const RecipeTable = ({ data, setConvertedRecipe, scale }: RecipeTableProps) => {
                     }
                   />
                 </Td>
-                <Td>{getConvertedLine(recipeLine, scale)}</Td>
+                <Td>{getConvertedLine(recipeLine, scale, keepTeaspoons)}</Td>
               </Tr>
             ))}
           </Tbody>

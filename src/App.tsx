@@ -1,4 +1,4 @@
-import { Button, Heading } from "@chakra-ui/react";
+import { Button, Checkbox, Heading } from "@chakra-ui/react";
 import { useState } from "react";
 import "./App.css";
 import RecipeTable from "./components/RecipeTable";
@@ -21,6 +21,7 @@ function App() {
     IngredientConversionInformation[]
   >([]);
   const [scale, setScale] = useState(1);
+  const [keepTeaspoons, setKeepTeaspoons] = useState(false);
 
   const usableScale = scale > 0 ? scale : 1;
 
@@ -98,17 +99,24 @@ function App() {
             Convert Recipe
           </Button>
           <ScaleInput scale={scale} setScale={setScale} />
+          <Checkbox
+            checked={keepTeaspoons}
+            onChange={(e) => setKeepTeaspoons(e.target.checked)}
+          >
+            Keep Teaspoons
+          </Checkbox>
         </div>
         <RecipeTextArea
           isDisabled
           recipe={convertedRecipe
-            .map((x) => getConvertedLine(x, usableScale))
+            .map((x) => getConvertedLine(x, usableScale, keepTeaspoons))
             .join("\n")}
         />
         <RecipeTable
           data={convertedRecipe}
           setConvertedRecipe={setConvertedRecipe}
           scale={usableScale}
+          keepTeaspoons={keepTeaspoons}
         />
       </div>
     </>

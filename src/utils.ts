@@ -350,16 +350,25 @@ export const getGramsFromMetricMeasurement = (
     : numericQuantity(metricMeasurement[SIMPLE_QUANTITY]);
 };
 
+const multiplyByScale = (value: number, scale: number) => {
+  return +(value * scale).toFixed(2);
+};
+
 export const getConvertedLine = (
   ingredientConversionInfo: IngredientConversionInformation,
-  scale: number
+  scale: number,
+  keepTeaspoons: boolean
 ): string => {
-  const unit = ingredientConversionInfo.metricUnit
+  const unit = getUnit(ingredientConversionInfo.parsedLine!);
+  const metricUnit = ingredientConversionInfo.metricUnit
     ? ingredientConversionInfo.metricUnit
     : "g";
 
   // Couldn't parse the string
-  if (!ingredientConversionInfo.measurementInGrams) {
+  if (
+    !ingredientConversionInfo.measurementInGrams ||
+    (keepTeaspoons && (unit === "teaspoon" || unit === "tsp"))
+  ) {
     // Try to scale any numbers at the beginning of a line that wasn't parsed
     const numberMatch = ingredientConversionInfo.originalLine.match(
       numbersAtBeginningOfLineRegex
@@ -367,20 +376,35 @@ export const getConvertedLine = (
 
     if (!numberMatch) return ingredientConversionInfo.originalLine;
 
-    return `${numericQuantity(numberMatch[1]) * scale} ${numberMatch[2]}`;
+    return `${multiplyByScale(
+      numericQuantity(numberMatch[RANGE_QUANTITY_1]),
+      scale
+    )} ${
+      numberMatch[RANGE_QUANTITY_2]
+        ? `- ${multiplyByScale(
+            numericQuantity(numberMatch[RANGE_QUANTITY_2]),
+            scale
+          )} `
+        : ""
+    }${numberMatch[RANGE_UNIT]}`;
   }
 
   // Could parse and the measurement was a range
   if (ingredientConversionInfo.measurementInGrams instanceof Array) {
-    return `${ingredientConversionInfo.measurementInGrams[0] * scale} - ${
-      ingredientConversionInfo.measurementInGrams[1] * scale
-    } ${unit} ${ingredientConversionInfo.parsedLine?.ingredientName}`;
+    return `${multiplyByScale(
+      ingredientConversionInfo.measurementInGrams[0],
+      scale
+    )} - ${multiplyByScale(
+      ingredientConversionInfo.measurementInGrams[1],
+      scale
+    )} ${metricUnit} ${ingredientConversionInfo.parsedLine?.ingredientName}`;
   }
 
   // Could parse and the measurement was simple
-  return `${ingredientConversionInfo.measurementInGrams * scale} ${unit} ${
-    ingredientConversionInfo.parsedLine?.ingredientName
-  }`;
+  return `${multiplyByScale(
+    ingredientConversionInfo.measurementInGrams,
+    scale
+  )} ${metricUnit} ${ingredientConversionInfo.parsedLine?.ingredientName}`;
 };
 
 export const getUnit: (parsedLine: ParsedLine) => string = (parsedLine) => {
