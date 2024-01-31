@@ -33,6 +33,12 @@
   }
 }
 
+.controls-checkboxes {
+  display: flex;
+  gap: 0.5rem;
+  flex-direction: column;
+}
+
 /* Source for table updates: https://css-tricks.com/responsive-data-tables/ */
 @media (max-width: 760px) {
   #root {

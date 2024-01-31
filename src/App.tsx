@@ -22,6 +22,7 @@ function App() {
   >([]);
   const [scale, setScale] = useState(1);
   const [keepTeaspoons, setKeepTeaspoons] = useState(false);
+  const [keepEggs, setKeepEggs] = useState(false);
 
   const usableScale = scale > 0 ? scale : 1;
 
@@ -99,17 +100,27 @@ function App() {
             Convert Recipe
           </Button>
           <ScaleInput scale={scale} setScale={setScale} />
-          <Checkbox
-            checked={keepTeaspoons}
-            onChange={(e) => setKeepTeaspoons(e.target.checked)}
-          >
-            Keep Teaspoons
-          </Checkbox>
+          <div className="controls-checkboxes">
+            <Checkbox
+              checked={keepTeaspoons}
+              onChange={(e) => setKeepTeaspoons(e.target.checked)}
+            >
+              Don't Convert Teaspoons
+            </Checkbox>
+            <Checkbox
+              checked={keepEggs}
+              onChange={(e) => setKeepEggs(e.target.checked)}
+            >
+              Don't Convert Eggs
+            </Checkbox>
+          </div>
         </div>
         <RecipeTextArea
           isDisabled
           recipe={convertedRecipe
-            .map((x) => getConvertedLine(x, usableScale, keepTeaspoons))
+            .map((x) =>
+              getConvertedLine(x, usableScale, keepTeaspoons, keepEggs)
+            )
             .join("\n")}
         />
         <RecipeTable
@@ -117,6 +128,7 @@ function App() {
           setConvertedRecipe={setConvertedRecipe}
           scale={usableScale}
           keepTeaspoons={keepTeaspoons}
+          keepEggs={keepEggs}
         />
       </div>
     </>

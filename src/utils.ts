@@ -169,6 +169,13 @@ export const findClosestKeySingle = (
     return potentialMatches[0];
   } else {
     console.error(`No match found for '${searchTerm}'`, potentialMatches);
+
+    // TODO: better logic to avoid nut butters?
+    // Butter offten has qualifiers, so just see it it contains that word
+    if (searchTerm.includes("butter")) {
+      return ingredientsFuse.search("butter")[0];
+    }
+
     return undefined;
   }
 };
@@ -357,9 +364,12 @@ const multiplyByScale = (value: number, scale: number) => {
 export const getConvertedLine = (
   ingredientConversionInfo: IngredientConversionInformation,
   scale: number,
-  keepTeaspoons: boolean
+  keepTeaspoons: boolean,
+  keepEggs: boolean
 ): string => {
-  const unit = getUnit(ingredientConversionInfo.parsedLine!);
+  const unit = ingredientConversionInfo.parsedLine
+    ? getUnit(ingredientConversionInfo.parsedLine)
+    : undefined;
   const metricUnit = ingredientConversionInfo.metricUnit
     ? ingredientConversionInfo.metricUnit
     : "g";
@@ -367,7 +377,12 @@ export const getConvertedLine = (
   // Couldn't parse the string
   if (
     !ingredientConversionInfo.measurementInGrams ||
-    (keepTeaspoons && (unit === "teaspoon" || unit === "tsp"))
+    (keepTeaspoons && (unit === "teaspoon" || unit === "tsp")) ||
+    (keepEggs &&
+      (ingredientConversionInfo.closestMeasurementKey === "Egg (fresh)" ||
+        ingredientConversionInfo.closestMeasurementKey ===
+          "Egg white (fresh)" ||
+        ingredientConversionInfo.closestMeasurementKey === "Egg yolk (fresh)"))
   ) {
     // Try to scale any numbers at the beginning of a line that wasn't parsed
     const numberMatch = ingredientConversionInfo.originalLine.match(

@@ -35,6 +35,7 @@ export const ingredientAliases: Record<string, string> = {
   milk: "milk (fresh)",
   "whole milk": "milk (fresh)",
   "large egg": "Egg (fresh)",
+  "egg white": "Egg white (fresh)",
   "semi-sweet chocolate chips": "chocolate chips",
   "canola oil": "vegetable oil",
   "light or dark corn syrup": "corn syrup",

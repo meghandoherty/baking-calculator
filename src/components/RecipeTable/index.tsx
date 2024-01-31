@@ -22,6 +22,7 @@ interface RecipeTableProps {
   >;
   scale: number;
   keepTeaspoons: boolean;
+  keepEggs: boolean;
 }
 
 const RecipeTable = ({
@@ -29,6 +30,7 @@ const RecipeTable = ({
   setConvertedRecipe,
   scale,
   keepTeaspoons,
+  keepEggs,
 }: RecipeTableProps) => {
   const ingredientNameOptions = useMemo(
     () => ingredientNames.map((name) => ({ value: name, label: name })),
@@ -120,7 +122,9 @@ const RecipeTable = ({
                     }
                   />
                 </Td>
-                <Td>{getConvertedLine(recipeLine, scale, keepTeaspoons)}</Td>
+                <Td>
+                  {getConvertedLine(recipeLine, scale, keepTeaspoons, keepEggs)}
+                </Td>
               </Tr>
             ))}
           </Tbody>
