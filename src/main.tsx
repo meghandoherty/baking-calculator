@@ -37,6 +37,10 @@ const router = createBrowserRouter(
           path: "shopping-list",
           element: <ShoppingList />,
         },
+        {
+          path: "*",
+          element: <Navigate to="/recipe-converter" replace />,
+        },
       ],
     },
   ],
