@@ -76,8 +76,8 @@ const RecipeTable = ({
   };
 
   return (
-    <section className="table-container">
-      <Heading as="h2" textAlign="center" mb={10}>
+    <section className="full-width">
+      <Heading as="h2" size="lg" textAlign="center" mt={10} mb={10}>
         Detailed Conversion
       </Heading>
       <TableContainer>
