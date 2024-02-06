@@ -12,8 +12,8 @@ import {
 } from "react-router-dom";
 import App from "./App.tsx";
 import "./index.css";
-import IngredientOrganizer from "./pages/IngredientOrganizer.tsx";
 import RecipeConverter from "./pages/RecipeConverter.tsx";
+import ShoppingList from "./pages/ShoppingList.tsx";
 
 const config: ThemeConfig = {
   initialColorMode: "system",
@@ -34,8 +34,8 @@ const router = createBrowserRouter(
           element: <RecipeConverter />,
         },
         {
-          path: "ingredient-organizer",
-          element: <IngredientOrganizer />,
+          path: "shopping-list",
+          element: <ShoppingList />,
         },
       ],
     },

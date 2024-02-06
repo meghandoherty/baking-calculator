@@ -20,7 +20,7 @@ const NavBar = () => {
       </div>
       <div className={`nav-menu-links ${!isOpen ? "hide-below-medium" : ""}`}>
         <NavBarLink to="recipe-converter" text="Recipe Converter" />
-        <NavBarLink to="ingredient-organizer" text="Ingredient Organizer" />
+        <NavBarLink to="shopping-list" text="Shopping List" />
       </div>
     </nav>
   );

@@ -48,14 +48,14 @@ nav {
   background-color: #171923;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 
-  .logo {
-    color: #90cdf4;
-  }
-
   .nav-menu-links {
     flex-basis: auto;
     display: flex;
     gap: 1rem;
+
+    .active {
+      color: #63b3ed;
+    }
   }
 }
 
@@ -132,6 +132,10 @@ nav {
 
   .show-below-medium {
     display: block;
+  }
+
+  .controls {
+    margin: 2rem 0;
   }
 
   nav .nav-menu-links {

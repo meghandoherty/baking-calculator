@@ -1,4 +1,4 @@
-import { Button, Checkbox, Heading } from "@chakra-ui/react";
+import { Button, Checkbox } from "@chakra-ui/react";
 import { useState } from "react";
 import RecipeTable from "../components/RecipeTable";
 import RecipeTextArea from "../components/RecipeTextArea";
@@ -89,9 +89,6 @@ const RecipeConverter = () => {
 
   return (
     <>
-      <Heading as="h1" textAlign="center" mb={10} className="full-width">
-        Recipe Converter
-      </Heading>
       <RecipeTextArea recipe={recipe} onInputChange={onInputChange} />
       <div className="controls">
         <Button onClick={onConvertRecipe} isDisabled={recipe.length === 0}>
