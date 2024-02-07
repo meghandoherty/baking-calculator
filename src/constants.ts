@@ -3,6 +3,10 @@ import { ingredientsWithMeasurements } from "./ingredients";
 import { ConversionRate } from "./types";
 
 export const ingredientNames = Object.keys(ingredientsWithMeasurements).sort();
+export const ingredientNameSelectOptions = ingredientNames.map((name) => ({
+  value: name,
+  label: name,
+}));
 export const ingredientsFuse = new Fuse(ingredientNames, {
   includeScore: true,
   ignoreLocation: true,

@@ -5,6 +5,7 @@ import {
   ingredientAliases,
   ingredientsFuse,
 } from "./constants";
+import { ingredientsWithMeasurements } from "./ingredients";
 import {
   EGG_SIZE,
   MATH_OPERATOR,
@@ -434,4 +435,62 @@ export const getUnit: (parsedLine: ParsedLine) => string = (parsedLine) => {
       console.error("no match");
       return "";
   }
+};
+
+export const convertRecipe = (
+  recipeText: string
+): IngredientConversionInformation[] => {
+  const conversion: IngredientConversionInformation[] = [];
+  for (const line of recipeText.split("\n")) {
+    if (line.length === 0) continue;
+
+    const parsedLine = parseRecipeLine(line);
+
+    if (!parsedLine) {
+      conversion.push({
+        originalLine: line,
+      });
+      continue;
+    }
+
+    const closestMeasurementKey = findClosestKey(parsedLine.ingredientName);
+
+    if (!closestMeasurementKey) {
+      conversion.push({
+        originalLine: line,
+        parsedLine: parsedLine,
+      });
+    } else {
+      // If given ounces or grams, just convert quickly
+      if (parsedLine.isMetric) {
+        const originalUnit = getUnit(parsedLine).toLowerCase();
+        const isOunces = originalUnit === "oz" || originalUnit === "ounce";
+
+        conversion.push({
+          originalLine: line,
+          parsedLine: parsedLine,
+          closestMeasurementKey,
+          measurementInGrams: getGramsFromMetricMeasurement(
+            parsedLine.regexMatch,
+            isOunces,
+            parsedLine.quantityType === "range"
+          ),
+          metricUnit:
+            originalUnit === "milliliter" || originalUnit === "ml" ? "ml" : "g",
+        });
+      } else {
+        conversion.push({
+          originalLine: line,
+          parsedLine: parsedLine,
+          closestMeasurementKey,
+          measurementInGrams: getGramsForCompleteMeasurement(
+            parsedLine,
+            ingredientsWithMeasurements[closestMeasurementKey]
+          ),
+        });
+      }
+    }
+  }
+
+  return conversion;
 };

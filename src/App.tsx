@@ -13,7 +13,11 @@ function App() {
   return (
     <>
       <NavBar />
-      <div className="container">
+      <div
+        className={`container ${
+          pathname === "/recipe-converter" ? "grid" : ""
+        }`}
+      >
         <Heading as="h1" textAlign="center" mb={10} className="full-width">
           {pageTitles[pathname]}
         </Heading>
