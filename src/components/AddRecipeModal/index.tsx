@@ -8,7 +8,10 @@ import {
   ModalOverlay,
 } from "@chakra-ui/react";
 import { useState } from "react";
-import { IngredientConversionInformation } from "../../types";
+import {
+  IngredientConversionInformation,
+  RecipeForShoppingList,
+} from "../../types";
 import { convertRecipe } from "../../utils";
 import MobdalConversionVerify from "./ModalConversionVerify";
 import ModalRecipeInput from "./ModalRecipeInput";
@@ -16,7 +19,7 @@ import ModalRecipeInput from "./ModalRecipeInput";
 interface AddRecipeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  addRecipe: (ingredients: IngredientConversionInformation[]) => void;
+  addRecipe: (newRecipe: RecipeForShoppingList) => void;
 }
 
 type Steps = "add-recipe" | "convert-recipe";
@@ -43,7 +46,31 @@ const AddRecipeModal = ({
       setConvertedRecipe(convertRecipe(recipe));
       setStep("convert-recipe");
     } else {
-      addRecipe(convertedRecipe);
+      const ingredientSums: Record<string, number> = {};
+      const miscIngredients: string[] = [];
+
+      for (const recipeLine of convertedRecipe) {
+        if (recipeLine.closestMeasurementKey) {
+          let value = ingredientSums[recipeLine.closestMeasurementKey] || 0;
+
+          if (recipeLine.measurementInGrams !== undefined) {
+            const numToAdd = Array.isArray(recipeLine.measurementInGrams)
+              ? recipeLine.measurementInGrams[1]
+              : recipeLine.measurementInGrams;
+            value = value + numToAdd;
+          }
+
+          ingredientSums[recipeLine.closestMeasurementKey] = value;
+        } else {
+          miscIngredients.push(recipeLine.originalLine);
+        }
+      }
+
+      addRecipe({
+        recipeName: "test",
+        ingredients: ingredientSums,
+        miscIngredients,
+      });
       closeAndResetModal();
     }
   };
@@ -67,7 +94,12 @@ const AddRecipeModal = ({
         </div>
 
         <ModalFooter>
-          <Button colorScheme="blue" mr={3} onClick={onMainButtonClick}>
+          <Button
+            colorScheme="blue"
+            mr={3}
+            onClick={onMainButtonClick}
+            isDisabled={step === "add-recipe" && recipe.length === 0}
+          >
             {step === "add-recipe" ? "Convert" : "Add"}
           </Button>
           <Button onClick={closeAndResetModal}>Cancel</Button>

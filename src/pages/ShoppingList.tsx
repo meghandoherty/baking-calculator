@@ -11,51 +11,23 @@ import {
 } from "@chakra-ui/react";
 import { useState } from "react";
 import AddRecipeModal from "../components/AddRecipeModal";
-import { IngredientConversionInformation } from "../types";
+import { RecipeForShoppingList } from "../types";
 
 const ShoppingList = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [recipesIngredients, setRecipesIngredients] = useState<
-    Record<string, number>[]
+  const [shoppingListRecipes, setShoppingListRecipes] = useState<
+    RecipeForShoppingList[]
   >([]);
 
-  const addRecipeIngredients = (
-    ingredients: IngredientConversionInformation[]
-  ) => {
-    // Add values of the same ingredient together
-    const recipeGroupedByIngredients = ingredients.reduce<
-      Record<string, number>
-    >((res, lineInfo) => {
-      if (lineInfo.closestMeasurementKey) {
-        let value = res[lineInfo.closestMeasurementKey] || 0;
-
-        if (lineInfo.measurementInGrams !== undefined) {
-          if (Array.isArray(lineInfo.measurementInGrams)) {
-            // TODO: range ok to pick the largest?
-            value = value + lineInfo.measurementInGrams[1];
-          } else {
-            value = value + lineInfo.measurementInGrams;
-          }
-        }
-
-        res[lineInfo.closestMeasurementKey] = value;
-      }
-
-      // TODO: things with no match
-      return res;
-    }, {});
-
-    setRecipesIngredients([...recipesIngredients, recipeGroupedByIngredients]);
-
-    console.log(
-      "🚀 ~ ShoppingList ~ recipeGroupedByIngredients:",
-      recipeGroupedByIngredients
-    );
+  const addRecipeToShoppingList = (newRecipe: RecipeForShoppingList) => {
+    setShoppingListRecipes([...shoppingListRecipes, newRecipe]);
   };
 
   const ingredientsInTable = Array.from(
-    new Set(recipesIngredients.map(Object.keys).flat())
+    new Set(shoppingListRecipes.map((x) => Object.keys(x.ingredients)).flat())
   ).sort();
+
+  const hasMisc = shoppingListRecipes.some((x) => x.miscIngredients.length > 0);
 
   return (
     <>
@@ -69,14 +41,14 @@ const ShoppingList = () => {
       <AddRecipeModal
         isOpen={isOpen}
         onClose={onClose}
-        addRecipe={addRecipeIngredients}
+        addRecipe={addRecipeToShoppingList}
       />
       <TableContainer className="full-width">
         <Table variant="striped" style={{ whiteSpace: "normal" }}>
           <Thead>
             <Tr>
               <Th>Ingredient</Th>
-              {recipesIngredients.map((_, idx) => (
+              {shoppingListRecipes.map((_, idx) => (
                 <Th key={idx}>Recipe {idx + 1}</Th>
               ))}
               <Th>Total</Th>
@@ -86,21 +58,41 @@ const ShoppingList = () => {
             {ingredientsInTable.map((ingredientName) => (
               <Tr key={ingredientName}>
                 <Td>{ingredientName}</Td>
-                {recipesIngredients.map((recipe, idx) => (
+                {shoppingListRecipes.map((recipe, idx) => (
                   <Td key={`${ingredientName} + ${idx}`}>
-                    {recipe[ingredientName] ? recipe[ingredientName] : null}
+                    {recipe.ingredients[ingredientName]
+                      ? recipe.ingredients[ingredientName]
+                      : null}
                   </Td>
                 ))}
                 <Td>
-                  {recipesIngredients.reduce((res, curr) => {
-                    if (curr[ingredientName]) {
-                      res += curr[ingredientName];
+                  {shoppingListRecipes.reduce((res, curr) => {
+                    if (curr.ingredients[ingredientName]) {
+                      res += curr.ingredients[ingredientName];
                     }
                     return res;
                   }, 0)}
                 </Td>
               </Tr>
             ))}
+            {!hasMisc ? null : (
+              <Tr>
+                <Td>Misc Ingredients</Td>
+                {shoppingListRecipes.map((recipe, idx) => (
+                  <Td key={`misc ${idx}`}>
+                    {recipe.miscIngredients.length > 0
+                      ? recipe.miscIngredients.join(", ")
+                      : null}
+                  </Td>
+                ))}
+                <Td>
+                  {shoppingListRecipes
+                    .filter((x) => x.miscIngredients.length > 0)
+                    .map((x) => x.miscIngredients.join(", "))
+                    .join(", ")}
+                </Td>
+              </Tr>
+            )}
           </Tbody>
         </Table>
       </TableContainer>
