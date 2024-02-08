@@ -6,7 +6,9 @@ import {
   Td,
   Th,
   Thead,
+  Tooltip,
   Tr,
+  VStack,
   useDisclosure,
 } from "@chakra-ui/react";
 import { useState } from "react";
@@ -62,17 +64,31 @@ const ShoppingList = () => {
             {ingredientsInTable.map((ingredientName) => (
               <Tr key={ingredientName}>
                 <Td>{ingredientName}</Td>
-                {shoppingListRecipes.map((recipe, idx) => (
-                  <Td key={`${ingredientName} + ${idx}`}>
-                    {recipe.ingredients[ingredientName]
-                      ? recipe.ingredients[ingredientName]
-                      : null}
-                  </Td>
-                ))}
+                {shoppingListRecipes.map((recipe, idx) => {
+                  const ingredientInRecipe = recipe.ingredients[ingredientName];
+
+                  return (
+                    <Td key={`${ingredientName} + ${idx}`}>
+                      {ingredientInRecipe && (
+                        <Tooltip
+                          label={
+                            <VStack spacing="0">
+                              {ingredientInRecipe.lines.map((x, idx) => (
+                                <span key={idx}>{x}</span>
+                              ))}
+                            </VStack>
+                          }
+                        >
+                          <span>{ingredientInRecipe.totalQuantity}</span>
+                        </Tooltip>
+                      )}
+                    </Td>
+                  );
+                })}
                 <Td>
                   {shoppingListRecipes.reduce((res, curr) => {
                     if (curr.ingredients[ingredientName]) {
-                      res += curr.ingredients[ingredientName];
+                      res += curr.ingredients[ingredientName].totalQuantity;
                     }
                     return res;
                   }, 0)}

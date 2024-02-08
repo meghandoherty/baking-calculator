@@ -9,6 +9,7 @@ import {
 } from "@chakra-ui/react";
 import { useState } from "react";
 import {
+  AggregatedIngredientInfo,
   IngredientConversionInformation,
   RecipeForShoppingList,
 } from "../../types";
@@ -48,21 +49,30 @@ const AddRecipeModal = ({
       setConvertedRecipe(convertRecipe(recipe));
       setStep("convert-recipe");
     } else {
-      const ingredientSums: Record<string, number> = {};
+      const ingredientSums: Record<string, AggregatedIngredientInfo> = {};
       const miscIngredients: string[] = [];
 
       for (const recipeLine of convertedRecipe) {
         if (recipeLine.closestMeasurementKey) {
-          let value = ingredientSums[recipeLine.closestMeasurementKey] || 0;
+          if (!ingredientSums[recipeLine.closestMeasurementKey]) {
+            ingredientSums[recipeLine.closestMeasurementKey] = {
+              totalQuantity: 0,
+              lines: [],
+            };
+          }
+
+          const currentIngredient =
+            ingredientSums[recipeLine.closestMeasurementKey];
 
           if (recipeLine.measurementInGrams !== undefined) {
             const numToAdd = Array.isArray(recipeLine.measurementInGrams)
               ? recipeLine.measurementInGrams[1]
               : recipeLine.measurementInGrams;
-            value = value + numToAdd;
-          }
+            currentIngredient.totalQuantity =
+              currentIngredient.totalQuantity + numToAdd;
 
-          ingredientSums[recipeLine.closestMeasurementKey] = value;
+            currentIngredient.lines.push(recipeLine.originalLine);
+          }
         } else {
           miscIngredients.push(recipeLine.originalLine);
         }
