@@ -30,6 +30,7 @@ const AddRecipeModal = ({
   addRecipe,
 }: AddRecipeModalProps) => {
   const [recipe, setRecipe] = useState("");
+  const [recipeName, setRecipeName] = useState("");
   const [convertedRecipe, setConvertedRecipe] = useState<
     IngredientConversionInformation[]
   >([]);
@@ -38,6 +39,7 @@ const AddRecipeModal = ({
   const closeAndResetModal = () => {
     onClose();
     setRecipe("");
+    setRecipeName("");
     setStep("add-recipe");
   };
 
@@ -67,7 +69,7 @@ const AddRecipeModal = ({
       }
 
       addRecipe({
-        recipeName: "test",
+        recipeName,
         ingredients: ingredientSums,
         miscIngredients,
       });
@@ -84,7 +86,12 @@ const AddRecipeModal = ({
 
         <div className="modal-body">
           {step === "add-recipe" ? (
-            <ModalRecipeInput recipe={recipe} setRecipe={setRecipe} />
+            <ModalRecipeInput
+              recipe={recipe}
+              setRecipe={setRecipe}
+              recipeName={recipeName}
+              setRecipeName={setRecipeName}
+            />
           ) : (
             <MobdalConversionVerify
               convertedRecipe={convertedRecipe}

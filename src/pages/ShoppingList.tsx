@@ -48,8 +48,12 @@ const ShoppingList = () => {
           <Thead>
             <Tr>
               <Th>Ingredient</Th>
-              {shoppingListRecipes.map((_, idx) => (
-                <Th key={idx}>Recipe {idx + 1}</Th>
+              {shoppingListRecipes.map((recipe, idx) => (
+                <Th key={idx}>
+                  {recipe.recipeName.length > 0
+                    ? recipe.recipeName
+                    : `Recipe ${idx + 1}`}
+                </Th>
               ))}
               <Th>Total</Th>
             </Tr>

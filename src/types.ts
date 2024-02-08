@@ -72,3 +72,9 @@ export type IngredientConversionInformation = {
   measurementInGrams?: number | number[];
   metricUnit?: string; // only used if metric provided in originalLine
 };
+
+export type RecipeForShoppingList = {
+  recipeName: string;
+  ingredients: Record<string, number>;
+  miscIngredients: string[];
+};
