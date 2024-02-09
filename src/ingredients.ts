@@ -45,7 +45,7 @@ export const ingredientsWithMeasurements: IngredientsAndMeasurements = {
   "Buckwheat (whole)": { cup: 170 },
   "Buckwheat Flour": { cup: 120 },
   Bulgur: { cup: 152 },
-  Butter: { tablespoon: 14 },
+  Butter: { tablespoon: 14, stick: 113 },
   Buttermilk: { cup: 227 },
   "Buttermilk powder": { tablespoon: 9 },
   "Cacao nibs": { cup: 120 },

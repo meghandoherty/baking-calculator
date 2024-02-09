@@ -25,6 +25,8 @@ export const MEASUREMENT_OPTION = [
   "large",
   "medium",
   "small",
+  // butter
+  "stick",
 ] as const;
 
 export type MeasurementOption = (typeof MEASUREMENT_OPTION)[number];
