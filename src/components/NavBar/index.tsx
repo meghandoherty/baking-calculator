@@ -1,7 +1,8 @@
 import { Link as ChakraLink } from "@chakra-ui/react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { CloseIcon, MenuIcon } from "./NavBarIcons";
+import CloseIcon from "../../icons/CloseIcon";
+import MenuIcon from "../../icons/MenuIcon";
 import NavBarLink from "./NavBarLink";
 
 const NavBar = () => {

@@ -1,5 +1,6 @@
 import {
   Button,
+  IconButton,
   Table,
   TableContainer,
   Tbody,
@@ -11,15 +12,20 @@ import {
   VStack,
   useDisclosure,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AddRecipeModal from "../components/AddRecipeModal";
+import CloseIcon from "../icons/CloseIcon";
 import { RecipeForShoppingList } from "../types";
 
 const ShoppingList = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [shoppingListRecipes, setShoppingListRecipes] = useState<
     RecipeForShoppingList[]
-  >([]);
+  >(JSON.parse(localStorage.getItem("shoppingList") || "[]"));
+
+  useEffect(() => {
+    localStorage.setItem("shoppingList", JSON.stringify(shoppingListRecipes));
+  }, [shoppingListRecipes]);
 
   const addRecipeToShoppingList = (newRecipe: RecipeForShoppingList) => {
     setShoppingListRecipes([...shoppingListRecipes, newRecipe]);
@@ -51,10 +57,24 @@ const ShoppingList = () => {
             <Tr>
               <Th>Ingredient</Th>
               {shoppingListRecipes.map((recipe, idx) => (
-                <Th key={idx}>
-                  {recipe.recipeName.length > 0
-                    ? recipe.recipeName
-                    : `Recipe ${idx + 1}`}
+                <Th key={`${recipe.recipeName} ${idx}`}>
+                  <div className="table-header-recipe-name">
+                    {recipe.recipeName.length > 0
+                      ? recipe.recipeName
+                      : `Recipe ${idx + 1}`}
+                    <IconButton
+                      aria-label="Delete recipe from shopping list"
+                      icon={<CloseIcon />}
+                      size="xs"
+                      variant="outline"
+                      colorScheme="blue"
+                      onClick={() =>
+                        setShoppingListRecipes((prev) =>
+                          prev.filter((_, idx2) => idx2 !== idx)
+                        )
+                      }
+                    />
+                  </div>
                 </Th>
               ))}
               <Th>Total</Th>
