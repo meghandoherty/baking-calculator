@@ -10,26 +10,29 @@ import {
   Tooltip,
   Tr,
   VStack,
-  useDisclosure,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import AddRecipeModal from "../components/AddRecipeModal";
+import { useLocation, useNavigate } from "react-router-dom";
 import CloseIcon from "../icons/CloseIcon";
 import { RecipeForShoppingList } from "../types";
 
 const ShoppingList = () => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
   const [shoppingListRecipes, setShoppingListRecipes] = useState<
     RecipeForShoppingList[]
   >(JSON.parse(localStorage.getItem("shoppingList") || "[]"));
+  const navigate = useNavigate();
+  const { state } = useLocation();
 
   useEffect(() => {
     localStorage.setItem("shoppingList", JSON.stringify(shoppingListRecipes));
   }, [shoppingListRecipes]);
 
-  const addRecipeToShoppingList = (newRecipe: RecipeForShoppingList) => {
-    setShoppingListRecipes([...shoppingListRecipes, newRecipe]);
-  };
+  useEffect(() => {
+    if (!state) return;
+
+    setShoppingListRecipes((prev) => [...prev, state]);
+    window.history.replaceState({}, "");
+  }, [state]);
 
   const ingredientsInTable = Array.from(
     new Set(shoppingListRecipes.map((x) => Object.keys(x.ingredients)).flat())
@@ -42,15 +45,11 @@ const ShoppingList = () => {
       <Button
         colorScheme="blue"
         className="align-self-flex-end"
-        onClick={onOpen}
+        onClick={() => navigate("add-recipe")}
+        variant="link"
       >
         Add Recipe
       </Button>
-      <AddRecipeModal
-        isOpen={isOpen}
-        onClose={onClose}
-        addRecipe={addRecipeToShoppingList}
-      />
       <TableContainer className="full-width">
         <Table variant="striped" style={{ whiteSpace: "normal" }}>
           <Thead>

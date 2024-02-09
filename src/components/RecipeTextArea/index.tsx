@@ -6,6 +6,7 @@ interface RecipeTextAreaProps {
   onInputChange?: ChangeEventHandler<HTMLTextAreaElement>;
   placeholder?: string;
   isDisabled?: boolean;
+  dontResize?: boolean;
 }
 
 const RecipeTextArea = ({
@@ -13,6 +14,7 @@ const RecipeTextArea = ({
   onInputChange,
   placeholder,
   isDisabled,
+  dontResize,
 }: RecipeTextAreaProps) => (
   <Textarea
     value={recipe}
@@ -21,6 +23,7 @@ const RecipeTextArea = ({
     height={300}
     placeholder={placeholder}
     isDisabled={isDisabled}
+    resize={dontResize ? "none" : "vertical"}
   />
 );
 

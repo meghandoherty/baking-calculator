@@ -1,14 +1,6 @@
-import {
-  Table,
-  TableContainer,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
-} from "@chakra-ui/react";
+import { Table, TableContainer, Tbody, Th, Thead, Tr } from "@chakra-ui/react";
 import { IngredientConversionInformation } from "../../types";
-import IngredientSelect from "../IngredientSelect";
+import ModalConversionVerifyTableRow from "./ModalConversionVerifyTableRow";
 
 interface ModalConversionVerifyProps {
   convertedRecipe: IngredientConversionInformation[];
@@ -22,28 +14,25 @@ const MobdalConversionVerify = ({
   setConvertedRecipe,
 }: ModalConversionVerifyProps) => (
   <TableContainer className="full-width">
-    <Table variant="striped" style={{ whiteSpace: "normal" }} size="sm">
+    <Table variant="striped" style={{ whiteSpace: "normal" }}>
       <Thead>
         <Tr>
           <Th>Recipe Line</Th>
           <Th>Matched Ingredient</Th>
+          <Th>Use Custom Measurement?</Th>
+          <Th>Quantity</Th>
+          <Th>Unit</Th>
         </Tr>
       </Thead>
       <Tbody>
         {convertedRecipe.map((recipeLine, idx) => (
-          <Tr
+          <ModalConversionVerifyTableRow
             key={`${idx} ${recipeLine.originalLine} ${recipeLine.closestMeasurementKey}`}
-          >
-            <Td>{recipeLine.originalLine}</Td>
-            <Td>
-              <IngredientSelect
-                recipeLine={recipeLine}
-                idx={idx}
-                convertedRecipe={convertedRecipe}
-                setConvertedRecipe={setConvertedRecipe}
-              />
-            </Td>
-          </Tr>
+            recipeLine={recipeLine}
+            idx={idx}
+            convertedRecipe={convertedRecipe}
+            setConvertedRecipe={setConvertedRecipe}
+          />
         ))}
       </Tbody>
     </Table>

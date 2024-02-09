@@ -6,6 +6,7 @@ import NavBar from "./components/NavBar";
 const pageTitles: Record<string, string> = {
   "/recipe-converter": "Recipe Converter",
   "/shopping-list": "Shopping List",
+  "/shopping-list/add-recipe": "Add Recipe to Shopping List",
 };
 
 function App() {

@@ -11,6 +11,7 @@ interface IngredientSelectProps {
   setConvertedRecipe: React.Dispatch<
     React.SetStateAction<IngredientConversionInformation[]>
   >;
+  isDisabled?: boolean;
 }
 
 const IngredientSelect = ({
@@ -18,6 +19,7 @@ const IngredientSelect = ({
   idx,
   convertedRecipe,
   setConvertedRecipe,
+  isDisabled,
 }: IngredientSelectProps) => {
   const onIngredientChange = (
     option: SingleValue<{
@@ -64,7 +66,7 @@ const IngredientSelect = ({
       useBasicStyles
       variant="flushed"
       isClearable
-      isDisabled={recipeLine.parsedLine === undefined}
+      isDisabled={isDisabled || recipeLine.parsedLine === undefined}
       menuPlacement="auto"
       onChange={(option) => onIngredientChange(option, idx)}
       menuPortalTarget={document.body}

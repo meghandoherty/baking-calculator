@@ -35,13 +35,13 @@ const RecipeConverter = () => {
         <ScaleInput scale={scale} setScale={setScale} />
         <div className="controls-checkboxes">
           <Checkbox
-            checked={keepTeaspoons}
+            isChecked={keepTeaspoons}
             onChange={(e) => setKeepTeaspoons(e.target.checked)}
           >
             Don't Convert Teaspoons
           </Checkbox>
           <Checkbox
-            checked={keepEggs}
+            isChecked={keepEggs}
             onChange={(e) => setKeepEggs(e.target.checked)}
           >
             Don't Convert Eggs

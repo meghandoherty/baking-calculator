@@ -8,12 +8,14 @@ import ReactDOM from "react-dom/client";
 import {
   createBrowserRouter,
   Navigate,
+  Outlet,
   RouterProvider,
 } from "react-router-dom";
 import App from "./App.tsx";
 import "./index.css";
 import RecipeConverter from "./pages/RecipeConverter.tsx";
 import ShoppingList from "./pages/ShoppingList.tsx";
+import ShoppingListAddRecipe from "./pages/ShoppingListAddRecipe.tsx";
 
 const config: ThemeConfig = {
   initialColorMode: "system",
@@ -35,7 +37,18 @@ const router = createBrowserRouter(
         },
         {
           path: "shopping-list",
-          element: <ShoppingList />,
+          element: <Outlet />,
+          children: [
+            {
+              index: true,
+
+              element: <ShoppingList />,
+            },
+            {
+              path: "add-recipe",
+              element: <ShoppingListAddRecipe />,
+            },
+          ],
         },
         {
           path: "*",
