@@ -1,5 +1,6 @@
 import { Checkbox, Input, Td, Tr } from "@chakra-ui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { numbersAtBeginningOfLineRegex } from "../../regex";
 import { IngredientConversionInformation } from "../../types";
 import IngredientSelect from "../IngredientSelect";
 
@@ -18,11 +19,18 @@ const ModalConversionVerifyTableRow = ({
   convertedRecipe,
   setConvertedRecipe,
 }: ModalConversionVerifyTableRowProps) => {
+  const numberMatch = recipeLine.originalLine.match(
+    numbersAtBeginningOfLineRegex
+  );
   const [usingCustomMeasurement, setUsingCustomMeasurement] = useState(
     recipeLine.parsedLine === undefined
   );
-  const [unit, setUnit] = useState("");
-  const [quantity, setQuantity] = useState("");
+  const [unit, setUnit] = useState(numberMatch ? numberMatch[3] : "");
+  const [quantity, setQuantity] = useState(
+    numberMatch ? (numberMatch[2] ? numberMatch[2] : numberMatch[1]) : ""
+  );
+
+  useEffect(() => {}, [unit, quantity]);
 
   return (
     <Tr
@@ -30,35 +38,38 @@ const ModalConversionVerifyTableRow = ({
     >
       <Td>{recipeLine.originalLine}</Td>
       <Td>
-        <IngredientSelect
-          recipeLine={recipeLine}
-          idx={idx}
-          convertedRecipe={convertedRecipe}
-          setConvertedRecipe={setConvertedRecipe}
-          isDisabled={usingCustomMeasurement}
-        />
-      </Td>
-      <Td>
         <Checkbox
           isChecked={usingCustomMeasurement}
           onChange={(e) => setUsingCustomMeasurement(e.target.checked)}
           disabled={recipeLine.parsedLine === undefined}
         />
       </Td>
-      <Td>
-        <Input
-          type="number"
-          disabled={!usingCustomMeasurement}
-          value={quantity}
-          onChange={(e) => setQuantity(e.target.value)}
-        />
-      </Td>
-      <Td>
-        <Input
-          disabled={!usingCustomMeasurement}
-          value={unit}
-          onChange={(e) => setUnit(e.target.value)}
-        />
+      <Td className="add-recipe-measurement-cell">
+        {usingCustomMeasurement ? (
+          <>
+            <Input
+              type="number"
+              value={quantity}
+              onChange={(e) => setQuantity(e.target.value)}
+              variant="outline"
+              placeholder="Quantity"
+            />
+            <Input
+              value={unit}
+              onChange={(e) => setUnit(e.target.value)}
+              variant="outline"
+              placeholder="Ingredient"
+            />
+          </>
+        ) : (
+          <IngredientSelect
+            recipeLine={recipeLine}
+            idx={idx}
+            convertedRecipe={convertedRecipe}
+            setConvertedRecipe={setConvertedRecipe}
+            isDisabled={usingCustomMeasurement}
+          />
+        )}
       </Td>
     </Tr>
   );

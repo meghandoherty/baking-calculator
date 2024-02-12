@@ -186,3 +186,18 @@ nav {
   align-items: center;
   justify-content: center;
 }
+
+.add-recipe-measurement-cell {
+  display: flex;
+  gap: 0.5rem;
+
+  /* Select for ingredients */
+  div:only-child {
+    flex-basis: 100%;
+  }
+
+  /* Custom unit/ingredeint input */
+  input:nth-child(1) {
+    flex-basis: 30%;
+  }
+}

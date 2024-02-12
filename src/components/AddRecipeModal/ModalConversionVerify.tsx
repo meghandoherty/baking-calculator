@@ -14,14 +14,12 @@ const MobdalConversionVerify = ({
   setConvertedRecipe,
 }: ModalConversionVerifyProps) => (
   <TableContainer className="full-width">
-    <Table variant="striped" style={{ whiteSpace: "normal" }}>
+    <Table style={{ whiteSpace: "normal" }}>
       <Thead>
         <Tr>
           <Th>Recipe Line</Th>
-          <Th>Matched Ingredient</Th>
           <Th>Use Custom Measurement?</Th>
-          <Th>Quantity</Th>
-          <Th>Unit</Th>
+          <Th>Measurement</Th>
         </Tr>
       </Thead>
       <Tbody>
