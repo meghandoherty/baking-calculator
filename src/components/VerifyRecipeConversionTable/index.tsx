@@ -1,6 +1,6 @@
 import { Table, TableContainer, Tbody, Th, Thead, Tr } from "@chakra-ui/react";
 import { IngredientConversionInformationForShoppingList } from "../../types";
-import VerifyRecipeConverstionTableRow from "./ModalConversionVerifyTableRow";
+import VerifyRecipeConverstionTableRow from "./VerifyRecipeConversionTableRow";
 
 interface VerifyRecipeConversionTableProps {
   convertedRecipe: IngredientConversionInformationForShoppingList[];

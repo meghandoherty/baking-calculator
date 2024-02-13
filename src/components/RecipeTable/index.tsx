@@ -94,7 +94,6 @@ const RecipeTable = ({
                   <IngredientSelect
                     recipeLine={recipeLine}
                     idx={idx}
-                    convertedRecipe={data}
                     onIngredientChange={onIngredientChange}
                   />
                 </Td>
