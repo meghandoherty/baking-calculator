@@ -1,8 +1,8 @@
 import { Button, Input } from "@chakra-ui/react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import MobdalConversionVerify from "../components/AddRecipeModal/ModalConversionVerify";
 import RecipeTextArea from "../components/RecipeTextArea";
+import VerifyRecipeConversionTable from "../components/VerifyRecipeConversionTable";
 import { numbersAtBeginningOfLineRegex } from "../regex";
 import {
   AggregatedIngredientInfo,
@@ -23,9 +23,10 @@ const ShoppingListAddRecipe = () => {
 
   const onMainButtonClick = () => {
     if (step === "add-recipe") {
-      const convertedRecipeWithoutCustom = convertRecipe(recipe);
+      const convertedRecipeBaseInfo = convertRecipe(recipe);
       const newConvertedRecipe: IngredientConversionInformationForShoppingList[] =
-        convertedRecipeWithoutCustom.map((info) => {
+        convertedRecipeBaseInfo.map((info) => {
+          // Use custom measurement by default if the line can't be parsed
           const useCustomMeasurement = info.parsedLine === undefined;
           if (!useCustomMeasurement) {
             return {
@@ -34,6 +35,7 @@ const ShoppingListAddRecipe = () => {
             };
           }
 
+          // Try to parse the line as a custom measurement by pulling out number
           const numberMatch = info.originalLine.match(
             numbersAtBeginningOfLineRegex
           );
@@ -129,7 +131,7 @@ const ShoppingListAddRecipe = () => {
           />
         </>
       ) : (
-        <MobdalConversionVerify
+        <VerifyRecipeConversionTable
           convertedRecipe={convertedRecipe}
           updateRecipeLine={updateRecipeLine}
         />

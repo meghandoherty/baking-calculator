@@ -1,8 +1,8 @@
 import { Table, TableContainer, Tbody, Th, Thead, Tr } from "@chakra-ui/react";
 import { IngredientConversionInformationForShoppingList } from "../../types";
-import ModalConversionVerifyTableRow from "./ModalConversionVerifyTableRow";
+import VerifyRecipeConverstionTableRow from "./ModalConversionVerifyTableRow";
 
-interface ModalConversionVerifyProps {
+interface VerifyRecipeConversionTableProps {
   convertedRecipe: IngredientConversionInformationForShoppingList[];
   updateRecipeLine: (
     lineNumber: number,
@@ -10,10 +10,10 @@ interface ModalConversionVerifyProps {
   ) => void;
 }
 
-const MobdalConversionVerify = ({
+const VerifyRecipeConversionTable = ({
   convertedRecipe,
   updateRecipeLine,
-}: ModalConversionVerifyProps) => (
+}: VerifyRecipeConversionTableProps) => (
   <TableContainer className="full-width">
     <Table style={{ whiteSpace: "normal" }}>
       <Thead>
@@ -25,7 +25,7 @@ const MobdalConversionVerify = ({
       </Thead>
       <Tbody>
         {convertedRecipe.map((recipeLine, idx) => (
-          <ModalConversionVerifyTableRow
+          <VerifyRecipeConverstionTableRow
             key={`${idx} ${recipeLine.originalLine} ${recipeLine.closestMeasurementKey}`}
             recipeLine={recipeLine}
             idx={idx}
@@ -37,4 +37,4 @@ const MobdalConversionVerify = ({
   </TableContainer>
 );
 
-export default MobdalConversionVerify;
+export default VerifyRecipeConversionTable;

@@ -5,7 +5,7 @@ import { IngredientConversionInformationForShoppingList } from "../../types";
 import { getGramsForCompleteMeasurement } from "../../utils";
 import IngredientSelect from "../IngredientSelect";
 
-interface ModalConversionVerifyTableRowProps {
+interface VerifyRecipeConverstionTableRowProps {
   recipeLine: IngredientConversionInformationForShoppingList;
   idx: number;
   updateRecipeLine: (
@@ -14,11 +14,11 @@ interface ModalConversionVerifyTableRowProps {
   ) => void;
 }
 
-const ModalConversionVerifyTableRow = ({
+const VerifyRecipeConverstionTableRow = ({
   recipeLine,
   idx,
   updateRecipeLine,
-}: ModalConversionVerifyTableRowProps) => {
+}: VerifyRecipeConverstionTableRowProps) => {
   const toggleUsingCustomMeasurement = (useCustomMeasurement: boolean) => {
     updateRecipeLine(idx, { ...recipeLine, useCustomMeasurement });
   };
@@ -111,4 +111,4 @@ const ModalConversionVerifyTableRow = ({
   );
 };
 
-export default ModalConversionVerifyTableRow;
+export default VerifyRecipeConverstionTableRow;
