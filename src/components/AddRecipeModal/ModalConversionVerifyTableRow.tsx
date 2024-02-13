@@ -1,36 +1,74 @@
 import { Checkbox, Input, Td, Tr } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
-import { numbersAtBeginningOfLineRegex } from "../../regex";
-import { IngredientConversionInformation } from "../../types";
+import { SingleValue } from "chakra-react-select";
+import { ingredientsWithMeasurements } from "../../ingredients";
+import { IngredientConversionInformationForShoppingList } from "../../types";
+import { getGramsForCompleteMeasurement } from "../../utils";
 import IngredientSelect from "../IngredientSelect";
 
 interface ModalConversionVerifyTableRowProps {
-  recipeLine: IngredientConversionInformation;
+  recipeLine: IngredientConversionInformationForShoppingList;
   idx: number;
-  convertedRecipe: IngredientConversionInformation[];
-  setConvertedRecipe: React.Dispatch<
-    React.SetStateAction<IngredientConversionInformation[]>
-  >;
+  updateRecipeLine: (
+    lineNumber: number,
+    newInfo: IngredientConversionInformationForShoppingList
+  ) => void;
 }
 
 const ModalConversionVerifyTableRow = ({
   recipeLine,
   idx,
-  convertedRecipe,
-  setConvertedRecipe,
+  updateRecipeLine,
 }: ModalConversionVerifyTableRowProps) => {
-  const numberMatch = recipeLine.originalLine.match(
-    numbersAtBeginningOfLineRegex
-  );
-  const [usingCustomMeasurement, setUsingCustomMeasurement] = useState(
-    recipeLine.parsedLine === undefined
-  );
-  const [unit, setUnit] = useState(numberMatch ? numberMatch[3] : "");
-  const [quantity, setQuantity] = useState(
-    numberMatch ? (numberMatch[2] ? numberMatch[2] : numberMatch[1]) : ""
-  );
+  const toggleUsingCustomMeasurement = (useCustomMeasurement: boolean) => {
+    updateRecipeLine(idx, { ...recipeLine, useCustomMeasurement });
+  };
 
-  useEffect(() => {}, [unit, quantity]);
+  const updateQuantity = (newValue: string) => {
+    updateRecipeLine(idx, {
+      ...recipeLine,
+      customMeasurementQuantity: newValue,
+    });
+  };
+
+  const updateIngredient = (newValue: string) => {
+    updateRecipeLine(idx, {
+      ...recipeLine,
+      customMeasurementUnit: newValue,
+    });
+  };
+
+  const onIngredientChange = (
+    option: SingleValue<{
+      label: string;
+      value: string;
+    }> | null,
+    idx: number
+  ) => {
+    let newItem: IngredientConversionInformationForShoppingList;
+    // Item name removed, reset closestMeasurementKey and measurementInGrams (unlcess it was initially provided)
+    if (option === null || recipeLine.parsedLine === undefined) {
+      newItem = {
+        ...recipeLine,
+        closestMeasurementKey: undefined,
+        measurementInGrams: recipeLine.metricUnit
+          ? recipeLine.measurementInGrams
+          : undefined,
+      };
+    } else {
+      newItem = {
+        ...recipeLine,
+        closestMeasurementKey: option.value,
+        measurementInGrams: recipeLine.metricUnit
+          ? recipeLine.measurementInGrams
+          : getGramsForCompleteMeasurement(
+              recipeLine.parsedLine,
+              ingredientsWithMeasurements[option.value]
+            ),
+      };
+    }
+
+    updateRecipeLine(idx, newItem);
+  };
 
   return (
     <Tr
@@ -39,24 +77,24 @@ const ModalConversionVerifyTableRow = ({
       <Td>{recipeLine.originalLine}</Td>
       <Td>
         <Checkbox
-          isChecked={usingCustomMeasurement}
-          onChange={(e) => setUsingCustomMeasurement(e.target.checked)}
+          isChecked={recipeLine.useCustomMeasurement}
+          onChange={(e) => toggleUsingCustomMeasurement(e.target.checked)}
           disabled={recipeLine.parsedLine === undefined}
         />
       </Td>
       <Td className="add-recipe-measurement-cell">
-        {usingCustomMeasurement ? (
+        {recipeLine.useCustomMeasurement ? (
           <>
             <Input
               type="number"
-              value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
+              value={recipeLine.customMeasurementQuantity || ""}
+              onChange={(e) => updateQuantity(e.target.value)}
               variant="outline"
               placeholder="Quantity"
             />
             <Input
-              value={unit}
-              onChange={(e) => setUnit(e.target.value)}
+              value={recipeLine.customMeasurementUnit || ""}
+              onChange={(e) => updateIngredient(e.target.value)}
               variant="outline"
               placeholder="Ingredient"
             />
@@ -65,9 +103,7 @@ const ModalConversionVerifyTableRow = ({
           <IngredientSelect
             recipeLine={recipeLine}
             idx={idx}
-            convertedRecipe={convertedRecipe}
-            setConvertedRecipe={setConvertedRecipe}
-            isDisabled={usingCustomMeasurement}
+            onIngredientChange={onIngredientChange}
           />
         )}
       </Td>

@@ -8,8 +8,10 @@ import {
   Thead,
   Tr,
 } from "@chakra-ui/react";
+import { SingleValue } from "chakra-react-select";
+import { ingredientsWithMeasurements } from "../../ingredients";
 import { IngredientConversionInformation } from "../../types";
-import { getConvertedLine } from "../../utils";
+import { getConvertedLine, getGramsForCompleteMeasurement } from "../../utils";
 import IngredientSelect from "../IngredientSelect";
 
 interface RecipeTableProps {
@@ -30,6 +32,43 @@ const RecipeTable = ({
   keepEggs,
 }: RecipeTableProps) => {
   if (!data.length) return null;
+
+  const onIngredientChange = (
+    option: SingleValue<{
+      label: string;
+      value: string;
+    }> | null,
+    modifiedIndex: number
+  ) => {
+    setConvertedRecipe(
+      data.map((item, idx) => {
+        if (idx !== modifiedIndex) return item;
+
+        // Item name removed, reset closestMeasurementKey and measurementInGrams (unlcess it was initially provided)
+        if (option === null || item.parsedLine === undefined) {
+          return {
+            ...item,
+            closestMeasurementKey: undefined,
+            measurementInGrams: item.metricUnit
+              ? item.measurementInGrams
+              : undefined,
+          };
+        }
+
+        // New item match, recalcualte measurementInGrams unless it's from an initially provided given metric unit
+        return {
+          ...item,
+          closestMeasurementKey: option.value,
+          measurementInGrams: item.metricUnit
+            ? item.measurementInGrams
+            : getGramsForCompleteMeasurement(
+                item.parsedLine,
+                ingredientsWithMeasurements[option.value]
+              ),
+        };
+      })
+    );
+  };
 
   return (
     <section className="full-width">
@@ -56,7 +95,7 @@ const RecipeTable = ({
                     recipeLine={recipeLine}
                     idx={idx}
                     convertedRecipe={data}
-                    setConvertedRecipe={setConvertedRecipe}
+                    onIngredientChange={onIngredientChange}
                   />
                 </Td>
                 <Td>

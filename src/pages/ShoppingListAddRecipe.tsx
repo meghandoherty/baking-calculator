@@ -3,9 +3,10 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MobdalConversionVerify from "../components/AddRecipeModal/ModalConversionVerify";
 import RecipeTextArea from "../components/RecipeTextArea";
+import { numbersAtBeginningOfLineRegex } from "../regex";
 import {
   AggregatedIngredientInfo,
-  IngredientConversionInformation,
+  IngredientConversionInformationForShoppingList,
 } from "../types";
 import { convertRecipe } from "../utils";
 
@@ -15,37 +16,75 @@ const ShoppingListAddRecipe = () => {
   const [recipe, setRecipe] = useState("");
   const [recipeName, setRecipeName] = useState("");
   const [convertedRecipe, setConvertedRecipe] = useState<
-    IngredientConversionInformation[]
+    IngredientConversionInformationForShoppingList[]
   >([]);
   const [step, setStep] = useState<Steps>("add-recipe");
   const navigate = useNavigate();
 
   const onMainButtonClick = () => {
     if (step === "add-recipe") {
-      setConvertedRecipe(convertRecipe(recipe));
+      const convertedRecipeWithoutCustom = convertRecipe(recipe);
+      const newConvertedRecipe: IngredientConversionInformationForShoppingList[] =
+        convertedRecipeWithoutCustom.map((info) => {
+          const useCustomMeasurement = info.parsedLine === undefined;
+          if (!useCustomMeasurement) {
+            return {
+              ...info,
+              useCustomMeasurement,
+            };
+          }
+
+          const numberMatch = info.originalLine.match(
+            numbersAtBeginningOfLineRegex
+          );
+
+          return {
+            ...info,
+            useCustomMeasurement,
+            ...(numberMatch && {
+              customMeasurementQuantity: numberMatch[2]
+                ? numberMatch[2]
+                : numberMatch[1],
+              customMeasurementUnit: numberMatch[3],
+            }),
+          };
+        });
+      setConvertedRecipe(newConvertedRecipe);
       setStep("convert-recipe");
     } else {
-      const ingredientSums: Record<string, AggregatedIngredientInfo> = {};
+      const ingredientSums: Record<string, AggregatedIngredientInfo> =
+        Object.create(null);
       const miscIngredients: string[] = [];
 
       for (const recipeLine of convertedRecipe) {
-        if (recipeLine.closestMeasurementKey) {
-          if (!ingredientSums[recipeLine.closestMeasurementKey]) {
-            ingredientSums[recipeLine.closestMeasurementKey] = {
+        let quantity: number | undefined;
+        let ingredient: string | undefined;
+
+        if (recipeLine.useCustomMeasurement) {
+          quantity = recipeLine.customMeasurementQuantity
+            ? parseInt(recipeLine.customMeasurementQuantity)
+            : undefined;
+          ingredient = recipeLine.customMeasurementUnit;
+        } else {
+          quantity = Array.isArray(recipeLine.measurementInGrams)
+            ? recipeLine.measurementInGrams[1]
+            : recipeLine.measurementInGrams;
+          ingredient = recipeLine.closestMeasurementKey;
+        }
+
+        if (ingredient) {
+          if (!ingredientSums[ingredient]) {
+            ingredientSums[ingredient] = {
               totalQuantity: 0,
               lines: [],
             };
           }
 
-          const currentIngredient =
-            ingredientSums[recipeLine.closestMeasurementKey];
+          const currentIngredient = ingredientSums[ingredient];
 
-          if (recipeLine.measurementInGrams !== undefined) {
-            const numToAdd = Array.isArray(recipeLine.measurementInGrams)
-              ? recipeLine.measurementInGrams[1]
-              : recipeLine.measurementInGrams;
+          if (quantity !== undefined) {
             currentIngredient.totalQuantity =
-              currentIngredient.totalQuantity + numToAdd;
+              currentIngredient.totalQuantity + quantity;
 
             currentIngredient.lines.push(recipeLine.originalLine);
           }
@@ -62,6 +101,15 @@ const ShoppingListAddRecipe = () => {
         },
       });
     }
+  };
+
+  const updateRecipeLine = (
+    lineNumber: number,
+    newInfo: IngredientConversionInformationForShoppingList
+  ) => {
+    setConvertedRecipe(
+      convertedRecipe.map((info, idx) => (idx === lineNumber ? newInfo : info))
+    );
   };
 
   return (
@@ -83,7 +131,7 @@ const ShoppingListAddRecipe = () => {
       ) : (
         <MobdalConversionVerify
           convertedRecipe={convertedRecipe}
-          setConvertedRecipe={setConvertedRecipe}
+          updateRecipeLine={updateRecipeLine}
         />
       )}
       <div className="add-recipe-controls">

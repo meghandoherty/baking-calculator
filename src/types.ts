@@ -75,6 +75,13 @@ export type IngredientConversionInformation = {
   metricUnit?: string; // only used if metric provided in originalLine
 };
 
+export interface IngredientConversionInformationForShoppingList
+  extends IngredientConversionInformation {
+  customMeasurementUnit?: string;
+  customMeasurementQuantity?: string;
+  useCustomMeasurement: boolean;
+}
+
 export type RecipeForShoppingList = {
   recipeName: string;
   ingredients: Record<string, AggregatedIngredientInfo>;
