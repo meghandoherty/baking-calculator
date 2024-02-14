@@ -42,7 +42,7 @@ const ShoppingList = () => {
   const isCustomIngredientMap: Record<string, boolean> = {};
   for (const ingredient of ingredientsInTable) {
     isCustomIngredientMap[ingredient] = shoppingListRecipes.some(
-      (recipe) => recipe.ingredients[ingredient].isCustomIngredient
+      (recipe) => recipe.ingredients[ingredient]?.isCustomIngredient
     );
   }
 
