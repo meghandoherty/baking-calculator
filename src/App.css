@@ -194,3 +194,19 @@ nav {
     flex-basis: 30%;
   }
 }
+
+.shopping-list-table {
+  th {
+    font-size: 14px;
+
+    a {
+      display: flex;
+      gap: 0.25rem;
+    }
+  }
+
+  th:not(:last-child),
+  td:not(:last-child) {
+    border-right: #2d3748 1px solid;
+  }
+}

@@ -1,6 +1,5 @@
 import {
   Button,
-  IconButton,
   Table,
   TableContainer,
   Tbody,
@@ -13,7 +12,7 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import CloseIcon from "../icons/CloseIcon";
+import ShoppingListTableHeader from "../components/ShoppingListTableHeader";
 import { RecipeForShoppingList } from "../types";
 
 const ShoppingList = () => {
@@ -56,31 +55,18 @@ const ShoppingList = () => {
       >
         Add Recipe
       </Button>
-      <TableContainer className="full-width">
-        <Table variant="striped" style={{ whiteSpace: "normal" }}>
+      <TableContainer className="full-width shopping-list-table">
+        <Table>
           <Thead>
             <Tr>
               <Th>Ingredient</Th>
               {shoppingListRecipes.map((recipe, idx) => (
-                <Th key={`${recipe.recipeName} ${idx}`}>
-                  <div className="table-header-recipe-name">
-                    {recipe.recipeName.length > 0
-                      ? recipe.recipeName
-                      : `Recipe ${idx + 1}`}
-                    <IconButton
-                      aria-label="Delete recipe from shopping list"
-                      icon={<CloseIcon />}
-                      size="xs"
-                      variant="outline"
-                      colorScheme="blue"
-                      onClick={() =>
-                        setShoppingListRecipes((prev) =>
-                          prev.filter((_, idx2) => idx2 !== idx)
-                        )
-                      }
-                    />
-                  </div>
-                </Th>
+                <ShoppingListTableHeader
+                  key={`${recipe.recipeName} ${idx}`}
+                  recipe={recipe}
+                  idx={idx}
+                  setShoppingListRecipes={setShoppingListRecipes}
+                />
               ))}
               <Th>Total</Th>
             </Tr>

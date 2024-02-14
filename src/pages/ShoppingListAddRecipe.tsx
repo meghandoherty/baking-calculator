@@ -7,6 +7,7 @@ import { numbersAtBeginningOfLineRegex } from "../regex";
 import {
   AggregatedIngredientInfo,
   IngredientConversionInformationForShoppingList,
+  RecipeForShoppingList,
 } from "../types";
 import { convertRecipe } from "../utils";
 
@@ -15,6 +16,7 @@ type Steps = "add-recipe" | "convert-recipe";
 const ShoppingListAddRecipe = () => {
   const [recipe, setRecipe] = useState("");
   const [recipeName, setRecipeName] = useState("");
+  const [recipeUrl, setRecipeUrl] = useState("");
   const [convertedRecipe, setConvertedRecipe] = useState<
     IngredientConversionInformationForShoppingList[]
   >([]);
@@ -97,12 +99,15 @@ const ShoppingListAddRecipe = () => {
         }
       }
 
+      const newRecipe: RecipeForShoppingList = {
+        recipeName,
+        recipeUrl,
+        ingredients: ingredientSums,
+        miscIngredients,
+      };
+
       navigate("/shopping-list", {
-        state: {
-          recipeName,
-          ingredients: ingredientSums,
-          miscIngredients,
-        },
+        state: { ...newRecipe },
       });
     }
   };
@@ -124,6 +129,11 @@ const ShoppingListAddRecipe = () => {
             value={recipeName}
             onChange={(e) => setRecipeName(e.target.value)}
             placeholder="Recipe Name"
+          />
+          <Input
+            value={recipeUrl}
+            onChange={(e) => setRecipeUrl(e.target.value)}
+            placeholder="Link to Recipe"
           />
           <RecipeTextArea
             recipe={recipe}
