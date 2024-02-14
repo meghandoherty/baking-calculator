@@ -39,6 +39,12 @@ const ShoppingList = () => {
   ).sort();
 
   const hasMisc = shoppingListRecipes.some((x) => x.miscIngredients.length > 0);
+  const isCustomIngredientMap: Record<string, boolean> = {};
+  for (const ingredient of ingredientsInTable) {
+    isCustomIngredientMap[ingredient] = shoppingListRecipes.some(
+      (recipe) => recipe.ingredients[ingredient].isCustomIngredient
+    );
+  }
 
   return (
     <>
@@ -110,7 +116,9 @@ const ShoppingList = () => {
                       res += curr.ingredients[ingredientName].totalQuantity;
                     }
                     return res;
-                  }, 0)}
+                  }, 0)}{" "}
+                  {isCustomIngredientMap[ingredientName] ? " " : " g "}
+                  {ingredientName}
                 </Td>
               </Tr>
             ))}

@@ -61,8 +61,9 @@ const ShoppingListAddRecipe = () => {
       for (const recipeLine of convertedRecipe) {
         let quantity: number | undefined;
         let ingredient: string | undefined;
+        const isCustomIngredient = recipeLine.useCustomMeasurement;
 
-        if (recipeLine.useCustomMeasurement) {
+        if (isCustomIngredient) {
           quantity = recipeLine.customMeasurementQuantity
             ? parseInt(recipeLine.customMeasurementQuantity)
             : undefined;
@@ -79,6 +80,7 @@ const ShoppingListAddRecipe = () => {
             ingredientSums[ingredient] = {
               totalQuantity: 0,
               lines: [],
+              isCustomIngredient,
             };
           }
 
