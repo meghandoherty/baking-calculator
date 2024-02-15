@@ -12,9 +12,9 @@ import {
 } from "react-router-dom";
 import App from "./App.tsx";
 import "./index.css";
-import RecipeConverter from "./pages/RecipeConverter.tsx";
-import ShoppingList from "./pages/ShoppingList.tsx";
-import ShoppingListAddRecipe from "./pages/ShoppingListAddRecipe.tsx";
+import RecipeConverter from "./pages/RecipeConverter/index.tsx";
+import ShoppingList from "./pages/ShoppingList/index.tsx";
+import ShoppingListAddRecipe from "./pages/ShoppingListAddRecipe/index.tsx";
 
 const config: ThemeConfig = {
   initialColorMode: "system",

@@ -3,6 +3,8 @@ import CloseIcon from "../../icons/CloseIcon";
 import ExternalLinkIcon from "../../icons/ExternalLinkIcon";
 import { RecipeForShoppingList } from "../../types";
 
+import styles from "./ShoppingListTableHeader.module.scss";
+
 interface ShoppingListTableHeaderProps {
   recipe: RecipeForShoppingList;
   idx: number;
@@ -30,7 +32,7 @@ const ShoppingListTableHeader = ({
 
   return (
     <Th key={`${recipe.recipeName} ${idx}`}>
-      <div className="table-header-recipe-name">
+      <div className={styles["table-header"]}>
         {nameNode}
         <IconButton
           aria-label="Delete recipe from shopping list"

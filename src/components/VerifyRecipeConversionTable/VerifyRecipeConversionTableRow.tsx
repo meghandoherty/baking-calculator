@@ -5,6 +5,8 @@ import { IngredientConversionInformationForShoppingList } from "../../types";
 import { getGramsForCompleteMeasurement } from "../../utils";
 import IngredientSelect from "../IngredientSelect";
 
+import styles from "./VerifyRecipeConversionTable.module.scss";
+
 interface VerifyRecipeConverstionTableRowProps {
   recipeLine: IngredientConversionInformationForShoppingList;
   idx: number;
@@ -82,7 +84,7 @@ const VerifyRecipeConverstionTableRow = ({
           disabled={recipeLine.parsedLine === undefined}
         />
       </Td>
-      <Td className="add-recipe-measurement-cell">
+      <Td className={styles["measurement-cell"]}>
         {recipeLine.useCustomMeasurement ? (
           <>
             <Input

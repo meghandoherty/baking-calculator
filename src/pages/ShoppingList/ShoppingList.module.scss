@@ -1,0 +1,17 @@
+.shopping-list-table {
+  th {
+    font-size: 14px;
+
+    a {
+      display: flex;
+      gap: 0.25rem;
+    }
+  }
+
+  @media (min-width: 760px) {
+    th:not(:last-child),
+    td:not(:last-child) {
+      border-right: #2d3748 1px solid;
+    }
+  }
+}

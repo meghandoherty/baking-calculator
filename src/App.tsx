@@ -1,6 +1,6 @@
 import { Heading } from "@chakra-ui/react";
 import { Outlet, useLocation } from "react-router-dom";
-import "./App.css";
+import "./App.scss";
 import NavBar from "./components/NavBar";
 
 const pageTitles: Record<string, string> = {
@@ -9,7 +9,7 @@ const pageTitles: Record<string, string> = {
   "/shopping-list/add-recipe": "Add Recipe to Shopping List",
 };
 
-function App() {
+const App = () => {
   const { pathname } = useLocation();
   return (
     <>
@@ -26,6 +26,6 @@ function App() {
       </div>
     </>
   );
-}
+};
 
 export default App;

@@ -1,15 +1,17 @@
 import { Button, Input } from "@chakra-ui/react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import RecipeTextArea from "../components/RecipeTextArea";
-import VerifyRecipeConversionTable from "../components/VerifyRecipeConversionTable";
-import { numbersAtBeginningOfLineRegex } from "../regex";
+import RecipeTextArea from "../../components/RecipeTextArea";
+import VerifyRecipeConversionTable from "../../components/VerifyRecipeConversionTable";
+import { numbersAtBeginningOfLineRegex } from "../../regex";
 import {
   AggregatedIngredientInfo,
   IngredientConversionInformationForShoppingList,
   RecipeForShoppingList,
-} from "../types";
-import { convertRecipe } from "../utils";
+} from "../../types";
+import { convertRecipe } from "../../utils";
+
+import styles from "./ShoppingListAddRecipe.module.scss";
 
 type Steps = "add-recipe" | "convert-recipe";
 
@@ -148,7 +150,7 @@ const ShoppingListAddRecipe = () => {
           updateRecipeLine={updateRecipeLine}
         />
       )}
-      <div className="add-recipe-controls">
+      <div className={styles["add-recipe-controls"]}>
         <Button colorScheme="blue" onClick={onMainButtonClick}>
           {step === "add-recipe" ? "Convert Recipe" : "Add Recipe"}
         </Button>

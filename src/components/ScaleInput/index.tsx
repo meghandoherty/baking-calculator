@@ -11,9 +11,10 @@ import { useState } from "react";
 interface ScaleInputProps {
   scale: number;
   setScale: React.Dispatch<React.SetStateAction<number>>;
+  className?: string;
 }
 
-const ScaleInput = ({ scale, setScale }: ScaleInputProps) => {
+const ScaleInput = ({ scale, setScale, className }: ScaleInputProps) => {
   const [internalScale, setInternalScale] = useState(`${scale}`);
 
   const onInputChange = (valueAsString: string, valueAsNumber: number) => {
@@ -26,7 +27,7 @@ const ScaleInput = ({ scale, setScale }: ScaleInputProps) => {
   };
 
   return (
-    <div className="scale-control">
+    <div className={className}>
       <FormLabel>Scale by</FormLabel>
       <NumberInput
         value={internalScale}

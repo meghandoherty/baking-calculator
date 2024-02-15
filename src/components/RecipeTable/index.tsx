@@ -14,6 +14,8 @@ import { IngredientConversionInformation } from "../../types";
 import { getConvertedLine, getGramsForCompleteMeasurement } from "../../utils";
 import IngredientSelect from "../IngredientSelect";
 
+import styles from "./RecipeTable.module.scss";
+
 interface RecipeTableProps {
   data: IngredientConversionInformation[];
   setConvertedRecipe: React.Dispatch<
@@ -88,6 +90,7 @@ const RecipeTable = ({
             {data.map((recipeLine, idx) => (
               <Tr
                 key={`${idx} ${recipeLine.originalLine} ${recipeLine.closestMeasurementKey}`}
+                className={styles["recipe-table-row"]}
               >
                 <Td>{recipeLine.originalLine}</Td>
                 <Td>
@@ -95,6 +98,7 @@ const RecipeTable = ({
                     recipeLine={recipeLine}
                     idx={idx}
                     onIngredientChange={onIngredientChange}
+                    className={styles["select-inline"]}
                   />
                 </Td>
                 <Td>

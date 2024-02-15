@@ -12,8 +12,10 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import ShoppingListTableHeader from "../components/ShoppingListTableHeader";
-import { RecipeForShoppingList } from "../types";
+import ShoppingListTableHeader from "../../components/ShoppingListTableHeader";
+import { RecipeForShoppingList } from "../../types";
+
+import styles from "./ShoppingList.module.scss";
 
 const ShoppingList = () => {
   const [shoppingListRecipes, setShoppingListRecipes] = useState<
@@ -55,8 +57,8 @@ const ShoppingList = () => {
       >
         Add Recipe
       </Button>
-      <TableContainer className="full-width shopping-list-table">
-        <Table>
+      <TableContainer>
+        <Table className={styles["shopping-list-table"]}>
           <Thead>
             <Tr>
               <Th>Ingredient</Th>

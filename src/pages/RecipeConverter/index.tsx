@@ -1,10 +1,12 @@
 import { Button, Checkbox } from "@chakra-ui/react";
 import { useState } from "react";
-import RecipeTable from "../components/RecipeTable";
-import RecipeTextArea from "../components/RecipeTextArea";
-import ScaleInput from "../components/ScaleInput";
-import { IngredientConversionInformation } from "../types";
-import { convertRecipe, getConvertedLine } from "../utils";
+import RecipeTable from "../../components/RecipeTable";
+import RecipeTextArea from "../../components/RecipeTextArea";
+import ScaleInput from "../../components/ScaleInput";
+import { IngredientConversionInformation } from "../../types";
+import { convertRecipe, getConvertedLine } from "../../utils";
+
+import styles from "./RecipeConverter.module.scss";
 
 const RecipeConverter = () => {
   const [recipe, setRecipe] = useState("");
@@ -28,12 +30,16 @@ const RecipeConverter = () => {
   return (
     <>
       <RecipeTextArea recipe={recipe} onInputChange={onInputChange} />
-      <div className="controls">
+      <div className={styles.controls}>
         <Button onClick={onConvertRecipe} isDisabled={recipe.length === 0}>
           Convert Recipe
         </Button>
-        <ScaleInput scale={scale} setScale={setScale} />
-        <div className="controls-checkboxes">
+        <ScaleInput
+          scale={scale}
+          setScale={setScale}
+          className={styles.scale}
+        />
+        <div className={styles.checkboxes}>
           <Checkbox
             isChecked={keepTeaspoons}
             onChange={(e) => setKeepTeaspoons(e.target.checked)}

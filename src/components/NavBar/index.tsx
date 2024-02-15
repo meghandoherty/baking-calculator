@@ -5,11 +5,13 @@ import CloseIcon from "../../icons/CloseIcon";
 import MenuIcon from "../../icons/MenuIcon";
 import NavBarLink from "./NavBarLink";
 
+import styles from "./NavBar.module.scss";
+
 const NavBar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <nav>
+    <nav className={styles.nav}>
       <ChakraLink className="logo" fontSize="xl" as={Link} to="/">
         Baking Calculator
       </ChakraLink>
@@ -19,7 +21,11 @@ const NavBar = () => {
       >
         {isOpen ? <CloseIcon /> : <MenuIcon />}
       </div>
-      <div className={`nav-menu-links ${!isOpen ? "hide-below-medium" : ""}`}>
+      <div
+        className={`${styles["nav-links"]} ${
+          !isOpen ? "hide-below-medium" : ""
+        }`}
+      >
         <NavBarLink to="recipe-converter" text="Recipe Converter" />
         <NavBarLink to="shopping-list" text="Shopping List" />
       </div>
