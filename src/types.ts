@@ -92,5 +92,6 @@ export type RecipeForShoppingList = {
 export type AggregatedIngredientInfo = {
   totalQuantity: number;
   lines: string[];
+  parsedLines: ParsedLine[];
   isCustomIngredient: boolean;
 };

@@ -1,5 +1,6 @@
 import {
   Button,
+  Checkbox,
   Table,
   TableContainer,
   Tbody,
@@ -16,6 +17,7 @@ import ShoppingListTableHeader from "../../components/ShoppingListTableHeader";
 import { RecipeForShoppingList } from "../../types";
 
 import styles from "./ShoppingList.module.scss";
+import { addIngredientQuantities } from "./utils";
 
 const ShoppingList = () => {
   const [shoppingListRecipes, setShoppingListRecipes] = useState<
@@ -23,6 +25,8 @@ const ShoppingList = () => {
   >(JSON.parse(localStorage.getItem("shoppingList") || "[]"));
   const navigate = useNavigate();
   const { state } = useLocation();
+
+  const [shouldConvertEggs, setShouldConvertEggs] = useState(false);
 
   useEffect(() => {
     localStorage.setItem("shoppingList", JSON.stringify(shoppingListRecipes));
@@ -49,14 +53,25 @@ const ShoppingList = () => {
 
   return (
     <>
-      <Button
-        colorScheme="blue"
-        className="align-self-flex-end"
-        onClick={() => navigate("add-recipe")}
-        variant="link"
-      >
-        Add Recipe
-      </Button>
+      <div className={styles["controls"]}>
+        <div>
+          <Checkbox
+            isChecked={shouldConvertEggs}
+            onChange={() => setShouldConvertEggs((prev) => !prev)}
+          >
+            Don't Convert Eggs
+          </Checkbox>
+        </div>
+
+        <Button
+          colorScheme="blue"
+          className="align-self-flex-end"
+          onClick={() => navigate("add-recipe")}
+          variant="link"
+        >
+          Add Recipe
+        </Button>
+      </div>
       <TableContainer>
         <Table className={styles["shopping-list-table"]}>
           <Thead>
@@ -99,14 +114,12 @@ const ShoppingList = () => {
                   );
                 })}
                 <Td>
-                  {shoppingListRecipes.reduce((res, curr) => {
-                    if (curr.ingredients[ingredientName]) {
-                      res += curr.ingredients[ingredientName].totalQuantity;
-                    }
-                    return res;
-                  }, 0)}{" "}
-                  {isCustomIngredientMap[ingredientName] ? " " : " g "}
-                  {ingredientName}
+                  {addIngredientQuantities(
+                    shoppingListRecipes,
+                    ingredientName,
+                    isCustomIngredientMap,
+                    shouldConvertEggs
+                  )}
                 </Td>
               </Tr>
             ))}

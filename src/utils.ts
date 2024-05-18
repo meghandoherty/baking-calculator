@@ -172,7 +172,7 @@ export const findClosestKeySingle = (
     console.error(`No match found for '${searchTerm}'`, potentialMatches);
 
     // TODO: better logic to avoid nut butters?
-    // Butter offten has qualifiers, so just see it it contains that word
+    // Butter often has qualifiers, so just see it it contains that word
     if (searchTerm.includes("butter")) {
       return ingredientsFuse.search("butter")[0];
     }
@@ -445,6 +445,7 @@ export const convertRecipe = (
     if (line.length === 0) continue;
 
     const parsedLine = parseRecipeLine(line);
+    console.log(recipeText, parsedLine);
 
     if (!parsedLine) {
       conversion.push({

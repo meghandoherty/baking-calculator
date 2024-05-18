@@ -85,6 +85,7 @@ const ShoppingListAddRecipe = () => {
               totalQuantity: 0,
               lines: [],
               isCustomIngredient,
+              parsedLines: [],
             };
           }
 
@@ -95,6 +96,9 @@ const ShoppingListAddRecipe = () => {
               currentIngredient.totalQuantity + quantity;
 
             currentIngredient.lines.push(recipeLine.originalLine);
+            if (recipeLine.parsedLine) {
+              currentIngredient.parsedLines.push(recipeLine.parsedLine);
+            }
           }
         } else {
           miscIngredients.push(recipeLine.originalLine);
