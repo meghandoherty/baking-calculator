@@ -307,4 +307,5 @@ export const ingredientsWithMeasurements: IngredientsAndMeasurements = {
   "Dijon Mustard": { teaspoon: 5 },
   Sprinkles: { cup: 160 },
   "Avocado Oil": { tablespoon: 14 },
+  "Almond Butter": { tablespoon: 16 },
 };

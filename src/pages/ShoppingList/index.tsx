@@ -27,6 +27,7 @@ const ShoppingList = () => {
   const { state } = useLocation();
 
   const [dontConvertEggs, setDontConvertEggs] = useState(false);
+  const [dontConvertButter, setDontConvertButter] = useState(false);
   const [hideIndividualRecipes, setHideIndividualRecipes] = useState(false);
 
   useEffect(() => {
@@ -67,6 +68,12 @@ const ShoppingList = () => {
             onChange={() => setDontConvertEggs((prev) => !prev)}
           >
             Don't Convert Eggs
+          </Checkbox>
+          <Checkbox
+            isChecked={dontConvertButter}
+            onChange={() => setDontConvertButter((prev) => !prev)}
+          >
+            Don't Convert Butter
           </Checkbox>
         </div>
 
@@ -117,7 +124,9 @@ const ShoppingList = () => {
                               </VStack>
                             }
                           >
-                            <span>{ingredientInRecipe.totalQuantity}</span>
+                            <span>
+                              {Math.round(ingredientInRecipe.totalQuantity)}
+                            </span>
                           </Tooltip>
                         )}
                       </Td>
@@ -128,7 +137,8 @@ const ShoppingList = () => {
                     shoppingListRecipes,
                     ingredientName,
                     isCustomIngredientMap,
-                    dontConvertEggs
+                    dontConvertEggs,
+                    dontConvertButter
                   )}
                 </Td>
               </Tr>

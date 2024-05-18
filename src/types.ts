@@ -53,7 +53,7 @@ export const isMetricUnit = (value: string): boolean =>
   value === "ml" ||
   value === "milliliter";
 
-// TOOD: improve type?
+// TODO: improve type?
 export type ConversionRate = {
   [From in ConversionRateKey]: {
     [To in ConversionRateKey]?: number;

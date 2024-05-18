@@ -46,7 +46,7 @@ const RecipeTable = ({
       data.map((item, idx) => {
         if (idx !== modifiedIndex) return item;
 
-        // Item name removed, reset closestMeasurementKey and measurementInGrams (unlcess it was initially provided)
+        // Item name removed, reset closestMeasurementKey and measurementInGrams (unless it was initially provided)
         if (option === null || item.parsedLine === undefined) {
           return {
             ...item,
@@ -57,7 +57,7 @@ const RecipeTable = ({
           };
         }
 
-        // New item match, recalcualte measurementInGrams unless it's from an initially provided given metric unit
+        // New item match, recalculate measurementInGrams unless it's from an initially provided given metric unit
         return {
           ...item,
           closestMeasurementKey: option.value,

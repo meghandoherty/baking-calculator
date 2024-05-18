@@ -149,6 +149,7 @@ export const findClosestKeySingle = (
     .replace(/room temperature/g, " ")
     .replace(/unsweetened/g, " ")
     .replace(/unbleached/g, " ")
+    .replace(/packed/g, " ")
     .replace(/,/g, " ")
     .trim();
 

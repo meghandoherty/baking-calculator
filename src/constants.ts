@@ -32,7 +32,6 @@ export const conversionRates: ConversionRate = {
 export const ingredientAliases: Record<string, string> = {
   "powdered sugar": "confectioners sugar",
   "light brown sugar": "brown sugar",
-  "packed light brown sugar": "brown sguar",
   sugar: "sugar (granulated (white)",
   "salted butter": "butter",
   "unsalted butter": "butter",

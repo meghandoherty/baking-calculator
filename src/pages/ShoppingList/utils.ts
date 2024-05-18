@@ -6,14 +6,17 @@ export const addIngredientQuantities = (
   shoppingListRecipes: RecipeForShoppingList[],
   ingredientName: string,
   isCustomIngredientMap: Record<string, boolean>,
-  dontConvertEggs: boolean
+  dontConvertEggs: boolean,
+  dontConvertButter: boolean
 ): string => {
-  const totalQuantity = shoppingListRecipes.reduce((res, curr) => {
-    if (curr.ingredients[ingredientName]) {
-      res += curr.ingredients[ingredientName].totalQuantity;
-    }
-    return res;
-  }, 0);
+  const totalQuantity = Math.round(
+    shoppingListRecipes.reduce((res, curr) => {
+      if (curr.ingredients[ingredientName]) {
+        res += curr.ingredients[ingredientName].totalQuantity;
+      }
+      return res;
+    }, 0)
+  );
 
   // Keep eggs as separate sizes
   if (
@@ -45,6 +48,12 @@ export const addIngredientQuantities = (
       .filter(([, value]) => value !== 0)
       .map(([size, value]) => `${value} ${size}`)
       .join(", ")} ${ingredientName}`;
+  }
+
+  if (dontConvertButter && ingredientName === "Butter") {
+    return `${Math.round(
+      totalQuantity / ingredientsWithMeasurements.Butter.stick!
+    )} sticks ${ingredientName}`;
   }
 
   return `${totalQuantity} ${
