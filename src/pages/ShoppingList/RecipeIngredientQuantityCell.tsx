@@ -25,7 +25,7 @@ const RecipeIngredientQuantityCell = ({
           </VStack>
         }
       >
-        <span>{Math.round(ingredientInRecipe.totalQuantity * scale)}</span>
+        <span>{Math.ceil(ingredientInRecipe.totalQuantity * scale)}</span>
       </Tooltip>
     </Td>
   );

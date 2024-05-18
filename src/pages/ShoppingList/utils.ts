@@ -9,7 +9,7 @@ export const addIngredientQuantities = (
   dontConvertEggs: boolean,
   dontConvertButter: boolean
 ): string => {
-  const totalQuantity = Math.round(
+  const totalQuantity = Math.ceil(
     shoppingListRecipes.reduce((res, currentRecipe) => {
       if (currentRecipe.ingredients[ingredientName]) {
         res +=
@@ -39,23 +39,25 @@ export const addIngredientQuantities = (
       if (recipe.ingredients[ingredientName]) {
         for (const parsedLine of recipe.ingredients[ingredientName]
           .parsedLines) {
-          sizes[parsedLine.regexMatch[EGG_SIZE]] += parseInt(
-            parsedLine.regexMatch[EGG_AMOUNT]
-          );
+          sizes[parsedLine.regexMatch[EGG_SIZE]] +=
+            parseInt(parsedLine.regexMatch[EGG_AMOUNT]) * recipe.scale;
         }
       }
     }
 
     return `${Object.entries(sizes)
       .filter(([, value]) => value !== 0)
-      .map(([size, value]) => `${value} ${size}`)
+      .map(
+        ([size, value]) =>
+          `${value} ${size}${value % 1 !== 0 ? " (rounded up)" : ""}`
+      )
       .join(", ")} ${ingredientName}`;
   }
 
   if (dontConvertButter && ingredientName === "Butter") {
-    return `${Math.round(
+    return `${Math.ceil(
       totalQuantity / ingredientsWithMeasurements.Butter.stick!
-    )} sticks ${ingredientName}`;
+    )} sticks ${ingredientName} (rounded up)`;
   }
 
   return `${totalQuantity} ${
