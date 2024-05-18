@@ -7,7 +7,7 @@ import IngredientSelect from "../IngredientSelect";
 
 import styles from "./VerifyRecipeConversionTable.module.scss";
 
-interface VerifyRecipeConverstionTableRowProps {
+interface VerifyRecipeConversionTableRowProps {
   recipeLine: IngredientConversionInformationForShoppingList;
   idx: number;
   updateRecipeLine: (
@@ -16,11 +16,11 @@ interface VerifyRecipeConverstionTableRowProps {
   ) => void;
 }
 
-const VerifyRecipeConverstionTableRow = ({
+const VerifyRecipeConversionTableRow = ({
   recipeLine,
   idx,
   updateRecipeLine,
-}: VerifyRecipeConverstionTableRowProps) => {
+}: VerifyRecipeConversionTableRowProps) => {
   const toggleUsingCustomMeasurement = (useCustomMeasurement: boolean) => {
     updateRecipeLine(idx, { ...recipeLine, useCustomMeasurement });
   };
@@ -47,7 +47,7 @@ const VerifyRecipeConverstionTableRow = ({
     idx: number
   ) => {
     let newItem: IngredientConversionInformationForShoppingList;
-    // Item name removed, reset closestMeasurementKey and measurementInGrams (unlcess it was initially provided)
+    // Item name removed, reset closestMeasurementKey and measurementInGrams (unless it was initially provided)
     if (option === null || recipeLine.parsedLine === undefined) {
       newItem = {
         ...recipeLine,
@@ -113,4 +113,4 @@ const VerifyRecipeConverstionTableRow = ({
   );
 };
 
-export default VerifyRecipeConverstionTableRow;
+export default VerifyRecipeConversionTableRow;

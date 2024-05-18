@@ -39,7 +39,7 @@ import {
   isMetricUnit,
 } from "./types";
 
-/* Convert unit abbrevitions to their full name */
+/* Convert unit abbreviations to their full name */
 export const standardizeUnit = (unit: MeasurementOption): MeasurementOption => {
   if (unit === "tbsp") return "tablespoon";
   else if (unit === "tsp") return "teaspoon";
@@ -459,6 +459,11 @@ export const convertRecipe = (
       conversion.push({
         originalLine: line,
         parsedLine: parsedLine,
+        measurementInGrams:
+          parsedLine.quantityType === "extraMetric"
+            ? parseInt(parsedLine.regexMatch[METRIC_QUANTITY_1])
+            : undefined,
+        metricUnit: parsedLine.regexMatch[METRIC_UNIT],
       });
     } else {
       // If given ounces or grams, just convert quickly
