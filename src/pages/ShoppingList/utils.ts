@@ -6,7 +6,7 @@ export const addIngredientQuantities = (
   shoppingListRecipes: RecipeForShoppingList[],
   ingredientName: string,
   isCustomIngredientMap: Record<string, boolean>,
-  shouldConvertEggs: boolean
+  dontConvertEggs: boolean
 ): string => {
   const totalQuantity = shoppingListRecipes.reduce((res, curr) => {
     if (curr.ingredients[ingredientName]) {
@@ -15,8 +15,9 @@ export const addIngredientQuantities = (
     return res;
   }, 0);
 
+  // Keep eggs as separate sizes
   if (
-    !shouldConvertEggs &&
+    dontConvertEggs &&
     ["Egg (fresh)", "Egg white (fresh", "Egg yolk (fresh)"].includes(
       ingredientName
     )

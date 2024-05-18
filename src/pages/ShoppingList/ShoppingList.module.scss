@@ -20,4 +20,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+
+  &-left {
+    display: flex;
+    gap: 1rem;
+  }
 }

@@ -26,7 +26,8 @@ const ShoppingList = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
 
-  const [shouldConvertEggs, setShouldConvertEggs] = useState(false);
+  const [dontConvertEggs, setDontConvertEggs] = useState(false);
+  const [hideIndividualRecipes, setHideIndividualRecipes] = useState(false);
 
   useEffect(() => {
     localStorage.setItem("shoppingList", JSON.stringify(shoppingListRecipes));
@@ -54,10 +55,16 @@ const ShoppingList = () => {
   return (
     <>
       <div className={styles["controls"]}>
-        <div>
+        <div className={styles["controls-left"]}>
           <Checkbox
-            isChecked={shouldConvertEggs}
-            onChange={() => setShouldConvertEggs((prev) => !prev)}
+            isChecked={hideIndividualRecipes}
+            onChange={() => setHideIndividualRecipes((prev) => !prev)}
+          >
+            Hide Individual Recipes
+          </Checkbox>
+          <Checkbox
+            isChecked={dontConvertEggs}
+            onChange={() => setDontConvertEggs((prev) => !prev)}
           >
             Don't Convert Eggs
           </Checkbox>
@@ -77,14 +84,15 @@ const ShoppingList = () => {
           <Thead>
             <Tr>
               <Th>Ingredient</Th>
-              {shoppingListRecipes.map((recipe, idx) => (
-                <ShoppingListTableHeader
-                  key={`${recipe.recipeName} ${idx}`}
-                  recipe={recipe}
-                  idx={idx}
-                  setShoppingListRecipes={setShoppingListRecipes}
-                />
-              ))}
+              {!hideIndividualRecipes &&
+                shoppingListRecipes.map((recipe, idx) => (
+                  <ShoppingListTableHeader
+                    key={`${recipe.recipeName} ${idx}`}
+                    recipe={recipe}
+                    idx={idx}
+                    setShoppingListRecipes={setShoppingListRecipes}
+                  />
+                ))}
               <Th>Total</Th>
             </Tr>
           </Thead>
@@ -92,33 +100,35 @@ const ShoppingList = () => {
             {ingredientsInTable.map((ingredientName) => (
               <Tr key={ingredientName}>
                 <Td>{ingredientName}</Td>
-                {shoppingListRecipes.map((recipe, idx) => {
-                  const ingredientInRecipe = recipe.ingredients[ingredientName];
+                {!hideIndividualRecipes &&
+                  shoppingListRecipes.map((recipe, idx) => {
+                    const ingredientInRecipe =
+                      recipe.ingredients[ingredientName];
 
-                  return (
-                    <Td key={`${ingredientName} + ${idx}`}>
-                      {ingredientInRecipe && (
-                        <Tooltip
-                          label={
-                            <VStack spacing="0">
-                              {ingredientInRecipe.lines.map((x, idx) => (
-                                <span key={idx}>{x}</span>
-                              ))}
-                            </VStack>
-                          }
-                        >
-                          <span>{ingredientInRecipe.totalQuantity}</span>
-                        </Tooltip>
-                      )}
-                    </Td>
-                  );
-                })}
+                    return (
+                      <Td key={`${ingredientName} + ${idx}`}>
+                        {ingredientInRecipe && (
+                          <Tooltip
+                            label={
+                              <VStack spacing="0">
+                                {ingredientInRecipe.lines.map((x, idx) => (
+                                  <span key={idx}>{x}</span>
+                                ))}
+                              </VStack>
+                            }
+                          >
+                            <span>{ingredientInRecipe.totalQuantity}</span>
+                          </Tooltip>
+                        )}
+                      </Td>
+                    );
+                  })}
                 <Td>
                   {addIngredientQuantities(
                     shoppingListRecipes,
                     ingredientName,
                     isCustomIngredientMap,
-                    shouldConvertEggs
+                    dontConvertEggs
                   )}
                 </Td>
               </Tr>
