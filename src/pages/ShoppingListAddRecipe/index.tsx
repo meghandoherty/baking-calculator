@@ -2,6 +2,7 @@ import { Button, Input } from "@chakra-ui/react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import RecipeTextArea from "../../components/RecipeTextArea";
+import ScaleInput from "../../components/ScaleInput";
 import VerifyRecipeConversionTable from "../../components/VerifyRecipeConversionTable";
 import { numbersAtBeginningOfLineRegex } from "../../regex";
 import {
@@ -10,7 +11,6 @@ import {
   RecipeForShoppingList,
 } from "../../types";
 import { convertRecipe } from "../../utils";
-
 import styles from "./ShoppingListAddRecipe.module.scss";
 
 type Steps = "add-recipe" | "convert-recipe";
@@ -19,6 +19,7 @@ const ShoppingListAddRecipe = () => {
   const [recipe, setRecipe] = useState("");
   const [recipeName, setRecipeName] = useState("");
   const [recipeUrl, setRecipeUrl] = useState("");
+  const [recipeScale, setRecipeScale] = useState(1);
   const [convertedRecipe, setConvertedRecipe] = useState<
     IngredientConversionInformationForShoppingList[]
   >([]);
@@ -109,6 +110,7 @@ const ShoppingListAddRecipe = () => {
         recipeName,
         recipeUrl,
         ingredients: ingredientSums,
+        scale: recipeScale,
         miscIngredients,
       };
 
@@ -140,6 +142,11 @@ const ShoppingListAddRecipe = () => {
             value={recipeUrl}
             onChange={(e) => setRecipeUrl(e.target.value)}
             placeholder="Link to Recipe"
+          />
+          <ScaleInput
+            scale={recipeScale}
+            setScale={setRecipeScale}
+            className={styles["scale-input"]}
           />
           <RecipeTextArea
             recipe={recipe}

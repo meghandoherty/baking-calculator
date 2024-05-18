@@ -20,14 +20,16 @@ const ShoppingListTableHeader = ({
 }: ShoppingListTableHeaderProps) => {
   const recipeName =
     recipe.recipeName?.length > 0 ? recipe.recipeName : `Recipe ${idx + 1}`;
+  const recipeNameWithScale =
+    recipe.scale !== 1 ? `${recipeName} (${recipe.scale}x)` : recipeName;
 
   const nameNode = recipe.recipeUrl ? (
     <Link href={recipe.recipeUrl} isExternal>
-      {recipeName}
+      {recipeNameWithScale}
       <ExternalLinkIcon />
     </Link>
   ) : (
-    recipeName
+    recipeNameWithScale
   );
 
   return (

@@ -7,15 +7,14 @@ import {
   Td,
   Th,
   Thead,
-  Tooltip,
   Tr,
-  VStack,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import ShoppingListTableHeader from "../../components/ShoppingListTableHeader";
 import { RecipeForShoppingList } from "../../types";
 
+import RecipeIngredientQuantityCell from "./RecipeIngredientQuantityCell";
 import styles from "./ShoppingList.module.scss";
 import { addIngredientQuantities } from "./utils";
 
@@ -113,23 +112,11 @@ const ShoppingList = () => {
                       recipe.ingredients[ingredientName];
 
                     return (
-                      <Td key={`${ingredientName} + ${idx}`}>
-                        {ingredientInRecipe && (
-                          <Tooltip
-                            label={
-                              <VStack spacing="0">
-                                {ingredientInRecipe.lines.map((x, idx) => (
-                                  <span key={idx}>{x}</span>
-                                ))}
-                              </VStack>
-                            }
-                          >
-                            <span>
-                              {Math.round(ingredientInRecipe.totalQuantity)}
-                            </span>
-                          </Tooltip>
-                        )}
-                      </Td>
+                      <RecipeIngredientQuantityCell
+                        key={`${ingredientName} + ${idx}`}
+                        ingredientInRecipe={ingredientInRecipe}
+                        scale={recipe.scale}
+                      />
                     );
                   })}
                 <Td>

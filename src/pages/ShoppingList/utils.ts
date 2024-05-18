@@ -10,9 +10,11 @@ export const addIngredientQuantities = (
   dontConvertButter: boolean
 ): string => {
   const totalQuantity = Math.round(
-    shoppingListRecipes.reduce((res, curr) => {
-      if (curr.ingredients[ingredientName]) {
-        res += curr.ingredients[ingredientName].totalQuantity;
+    shoppingListRecipes.reduce((res, currentRecipe) => {
+      if (currentRecipe.ingredients[ingredientName]) {
+        res +=
+          currentRecipe.ingredients[ingredientName].totalQuantity *
+          currentRecipe.scale;
       }
       return res;
     }, 0)

@@ -87,6 +87,7 @@ export type RecipeForShoppingList = {
   ingredients: Record<string, AggregatedIngredientInfo>;
   miscIngredients: string[];
   recipeUrl?: string;
+  scale: number;
 };
 
 export type AggregatedIngredientInfo = {
